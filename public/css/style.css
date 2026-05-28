@@ -1,0 +1,301 @@
+/* =========================
+   ESTILOS GENERALES
+========================= */
+
+body{
+    background: linear-gradient(
+        135deg,
+        #f4f7fb,
+        #dfe9f3
+    );
+
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+    min-height: 100vh;
+
+    color: #2c3e50;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+
+.navbar{
+    background: linear-gradient(
+        90deg,
+        #0f172a,
+        #1e3a8a
+    ) !important;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.navbar-brand{
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffffff !important;
+}
+
+.nav-link{
+    color: #e2e8f0 !important;
+    transition: 0.3s;
+    margin-left: 10px;
+}
+
+.nav-link:hover{
+    color: #38bdf8 !important;
+    transform: translateY(-2px);
+}
+
+/* =========================
+   CONTENEDORES
+========================= */
+
+.container{
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+/* =========================
+   TARJETAS
+========================= */
+
+.card{
+    border: none;
+    border-radius: 18px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 10px 25px rgba(0,0,0,0.08);
+
+    transition: 0.3s;
+}
+
+.card:hover{
+    transform: translateY(-3px);
+}
+
+/* =========================
+   TITULOS
+========================= */
+
+h1, h2, h3, h4{
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.text-muted{
+    color: #64748b !important;
+}
+
+/* =========================
+   INPUTS
+========================= */
+
+.form-control,
+textarea{
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+
+    padding: 12px;
+
+    transition: 0.3s;
+}
+
+.form-control:focus,
+textarea:focus{
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 0.2rem rgba(37,99,235,0.25);
+}
+
+/* =========================
+   BOTONES
+========================= */
+
+.btn{
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-weight: 600;
+
+    transition: 0.3s;
+}
+
+.btn-primary{
+    background: linear-gradient(
+        90deg,
+        #2563eb,
+        #1d4ed8
+    );
+
+    border: none;
+}
+
+.btn-primary:hover{
+    background: linear-gradient(
+        90deg,
+        #1d4ed8,
+        #1e40af
+    );
+
+    transform: scale(1.03);
+}
+
+.btn-success{
+    background: linear-gradient(
+        90deg,
+        #16a34a,
+        #15803d
+    );
+
+    border: none;
+}
+
+.btn-success:hover{
+    background: linear-gradient(
+        90deg,
+        #15803d,
+        #166534
+    );
+
+    transform: scale(1.03);
+}
+
+.btn-secondary{
+    background: #64748b;
+    border: none;
+}
+
+.btn-secondary:hover{
+    background: #475569;
+}
+
+/* =========================
+   TABLAS
+========================= */
+
+.table{
+    border-radius: 12px;
+    overflow: hidden;
+
+    background: white;
+}
+
+.table thead{
+    background: linear-gradient(
+        90deg,
+        #1e293b,
+        #334155
+    );
+
+    color: white;
+}
+
+.table th{
+    padding: 15px;
+    text-align: center;
+}
+
+.table td{
+    vertical-align: middle;
+    padding: 14px;
+}
+
+.table-hover tbody tr:hover{
+    background-color: #eff6ff;
+}
+
+/* =========================
+   ALERTAS
+========================= */
+
+.alert{
+    border: none;
+    border-radius: 12px;
+
+    padding: 15px;
+
+    font-weight: 600;
+}
+
+.alert-success{
+    background: #dcfce7;
+    color: #166534;
+}
+
+.alert-danger{
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.alert-warning{
+    background: #fef9c3;
+    color: #854d0e;
+}
+
+/* =========================
+   TOTAL FACTURA
+========================= */
+
+#totalFactura{
+    color: #16a34a;
+    font-size: 1.6rem;
+    font-weight: bold;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+footer{
+    margin-top: 60px;
+
+    background: linear-gradient(
+        90deg,
+        #0f172a,
+        #1e293b
+    );
+
+    color: white;
+
+    padding: 20px;
+
+    text-align: center;
+
+    border-top:
+        4px solid #38bdf8;
+}
+
+/* =========================
+   TOASTS
+========================= */
+
+#toast-container{
+    z-index: 9999;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:768px){
+
+    .card{
+        padding: 20px !important;
+    }
+
+    h1{
+        font-size: 2rem;
+    }
+
+    .btn{
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .table{
+        font-size: 0.9rem;
+    }
+}
