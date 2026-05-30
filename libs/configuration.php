@@ -6,7 +6,7 @@
     $config->set('viewFolder', 'view/');
     
     $config->set('dbhost', 'localhost'); // ip
-    $config->set('dbname', 'db_examen1_alexanderMachado');
+    $config->set('dbname', 'db_proyecto');
     $config->set('dbuser', 'root');
     $config->set('dbpass', '');
     
