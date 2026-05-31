@@ -33,7 +33,7 @@
             <div class="d-flex justify-content-between mt-4">
                 <div>
                     <button type="submit" class="btn btn-primary">Actualizar Gabinete</button>
-                    <a href="?controlador=Index&accion=mostrar" class="btn btn-secondary">Volver</a>
+                    <a href="?controlador=Index&accion=mostrar&tab=gabinetes" class="btn btn-secondary">Volver</a>
                 </div>
 
                 <?php if ($gabinete['estado'] == 'activo'): ?>

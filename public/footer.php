@@ -1,7 +1,7 @@
 <footer class="mt-5 py-4" style="background:#1a1a2e;color:rgba(255,255,255,.6);text-align:center;font-size:.9rem;">
     <div class="container">
         <i class="bi bi-bicycle" style="color:#e94560;"></i>
-        <strong style="color:#fff;">Laboratorio Etomología</strong> &nbsp;|&nbsp;
+        <strong style="color:#fff;">Laboratorio Entomología</strong> &nbsp;|&nbsp;
         Universidad de Costa Rica &nbsp;|&nbsp; &copy; <?php echo date('Y'); ?>
     </div>
 </footer>

@@ -71,17 +71,20 @@
             </div>
             <table class="table table-bordered table-hover">
                 <thead class="table-dark">
-                    <tr><th>#</th><th>Nombre del Orden</th></tr>
+                    <tr><th>#</th><th>Nombre del Orden</th><th>Acciones</th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($ordenes as $o): ?>
                     <tr>
                         <td><?php echo $o['id_orden']; ?></td>
                         <td><?php echo htmlspecialchars($o['nombre']); ?></td>
+                        <td>
+                            <a href="?controlador=Orden&accion=mostrarEditar&id=<?php echo $o['id_orden']; ?>" class="btn btn-warning btn-sm">Editar</a>
+                        </td>
                     </tr>
                     <?php endforeach; ?>
                     <?php if (empty($ordenes)): ?>
-                    <tr><td colspan="2" class="text-center text-muted">Sin registros.</td></tr>
+                    <tr><td colspan="3" class="text-center text-muted">Sin registros.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
@@ -142,7 +145,7 @@
             </div>
             <table class="table table-bordered table-hover" id="tablaGeneros">
                 <thead class="table-dark">
-                    <tr><th>#</th><th>Género</th><th>Familia</th><th>Orden</th></tr>
+                    <tr><th>#</th><th>Género</th><th>Familia</th><th>Orden</th><th>Acciones</th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($generos as $g): ?>
@@ -151,10 +154,13 @@
                         <td><em><?php echo htmlspecialchars($g['nombre']); ?></em></td>
                         <td><?php echo htmlspecialchars($g['familia']); ?></td>
                         <td><?php echo htmlspecialchars($g['orden']); ?></td>
+                        <td>
+                            <a href="?controlador=Genero&accion=mostrarEditar&id=<?php echo $g['id_genero']; ?>" class="btn btn-warning btn-sm">Editar</a>
+                        </td>
                     </tr>
                     <?php endforeach; ?>
                     <?php if (empty($generos)): ?>
-                    <tr><td colspan="4" class="text-center text-muted">Sin registros.</td></tr>
+                    <tr><td colspan="5" class="text-center text-muted">Sin registros.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
@@ -177,7 +183,7 @@
             </div>
             <table class="table table-bordered table-hover" id="tablaEspecies">
                 <thead class="table-dark">
-                    <tr><th>#</th><th>Especie</th><th>Género</th><th>Familia</th><th>Orden</th></tr>
+                    <tr><th>#</th><th>Especie</th><th>Género</th><th>Familia</th><th>Orden</th><th>Acciones</th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($especies as $e): ?>
@@ -187,10 +193,13 @@
                         <td><?php echo htmlspecialchars($e['genero']); ?></td>
                         <td><?php echo htmlspecialchars($e['familia']); ?></td>
                         <td><?php echo htmlspecialchars($e['orden']); ?></td>
+                        <td>
+                            <a href="?controlador=Especie&accion=mostrarEditar&id=<?php echo $e['id_especie']; ?>" class="btn btn-warning btn-sm">Editar</a>
+                        </td>
                     </tr>
                     <?php endforeach; ?>
                     <?php if (empty($especies)): ?>
-                    <tr><td colspan="5" class="text-center text-muted">Sin registros.</td></tr>
+                    <tr><td colspan="6" class="text-center text-muted">Sin registros.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>

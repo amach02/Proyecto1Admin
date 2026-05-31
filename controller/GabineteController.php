@@ -30,6 +30,25 @@ class GabineteController
         }
     }
 
+public function registrar()
+    {
+        $codigo      = trim($_POST['codigo']);
+        $descripcion = trim($_POST['descripcion']);
+
+        if (empty($codigo)) {
+            header('Location: ?controlador=Gabinete&accion=mostrarRegistrar&status=invalido');
+            return;
+        }
+
+        $respuesta = $this->model->registrarGabinete($codigo, $descripcion);
+
+        if ($respuesta['Exito'] == 1) {
+            header('Location: ?controlador=Infraestructura&accion=mostrar&tab=gabinetes&status=registrado_success');
+        } else {
+            header('Location: ?controlador=Gabinete&accion=mostrarRegistrar&status=error');
+        }
+    }
+
     public function editar()
     {
         $id = trim($_POST['id_gabinete']);
@@ -44,7 +63,7 @@ class GabineteController
         $resultado = $this->model->editarGabinete($id, $codigo, $descripcion);
 
         if ($resultado) {
-            header('Location: ?controlador=Index&accion=mostrar&status=gabinete_editado');
+            header('Location: ?controlador=Infraestructura&accion=mostrar&tab=gabinetes&status=gabinete_editado');
         } else {
             header("Location: ?controlador=Gabinete&accion=mostrarEditar&id=$id&status=error");
         }
@@ -61,12 +80,12 @@ class GabineteController
         $respuesta = $this->model->inhabilitarGabinete($id);
 
         if ($respuesta['Exito'] == 1) {
-            header('Location: ?controlador=Gabinete&accion=mostrarListar&status=gabinete_inhabilitado');
+            header('Location: ?controlador=Infraestructura&accion=mostrar&tab=gabinetes&status=gabinete_inhabilitado');
         } else {
-            // Si el SP devolvió Exito = 0 significa que falló por la validación de insectos dentro
             header("Location: ?controlador=Gabinete&accion=mostrarEditar&id=$id&status=con_especimenes");
         }
     }
+
 
     public function mostrarListar()
     {
@@ -79,23 +98,5 @@ class GabineteController
         $this->view->show('registrarGabineteView.php', []);
     }
 
-    public function registrar()
-    {
-        $codigo      = trim($_POST['codigo']);
-        $descripcion = trim($_POST['descripcion']);
-
-        if (empty($codigo)) {
-            header('Location: ?controlador=Gabinete&accion=mostrarRegistrar&status=invalido');
-            return;
-        }
-
-        $respuesta = $this->model->registrarGabinete($codigo, $descripcion);
-
-        if ($respuesta['Exito'] == 1) {
-            header('Location: ?controlador=Gabinete&accion=mostrarListar&status=registrado_success');
-        } else {
-            header('Location: ?controlador=Gabinete&accion=mostrarRegistrar&status=error');
-        }
-    }
 }
 ?>

@@ -27,7 +27,7 @@ class GeneroController
         $this->view->show('registrarGeneroView.php', ['familias' => $familias]);
     }
 
-    public function registrar()
+public function registrar()
     {
         $nombre     = trim($_POST['nombre']);
         $id_familia = trim($_POST['id_familia']);
@@ -40,9 +40,35 @@ class GeneroController
         $respuesta = $this->model->registrarGenero($nombre, $id_familia);
 
         if ($respuesta['Exito'] == 1) {
-            header('Location: ?controlador=Genero&accion=mostrarListar&status=registrado_success');
+            header('Location: ?controlador=Taxonomia&accion=mostrar&tab=generos&status=registrado_success');
         } else {
             header('Location: ?controlador=Genero&accion=mostrarRegistrar&status=error');
+        }
+    }
+
+    public function editar() {
+        $id = trim($_POST['id_genero']);
+        $nombre = trim($_POST['nombre']);
+        $id_familia = trim($_POST['id_familia']);
+
+        if (empty($id) || empty($nombre) || empty($id_familia)) {
+            header("Location: ?controlador=Genero&accion=mostrarEditar&id=$id&status=invalido"); return;
+        }
+
+        if ($this->model->editarGenero($id, $nombre, $id_familia)) {
+            header('Location: ?controlador=Taxonomia&accion=mostrar&tab=generos&status=editado_success');
+        } else {
+            header("Location: ?controlador=Genero&accion=mostrarEditar&id=$id&status=error");
+        }
+    }
+
+    public function mostrarEditar() {
+        if (!isset($_GET['id'])) { header('Location: ?controlador=Index&accion=mostrar&status=error'); return; }
+        $datos = $this->model->buscarGeneroPorId($_GET['id']);
+        if ($datos) {
+            require_once 'model/FamiliaModel.php';
+            $familias = (new FamiliaModel())->listarFamilias();
+            $this->view->show('editarGeneroView.php', ['genero' => $datos, 'familias' => $familias]);
         }
     }
 }

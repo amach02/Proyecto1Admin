@@ -30,6 +30,25 @@ class FamiliaController
         }
     }
 
+public function registrar()
+    {
+        $nombre   = trim($_POST['nombre']);
+        $id_orden = trim($_POST['id_orden']);
+
+        if (empty($nombre) || empty($id_orden)) {
+            header('Location: ?controlador=Familia&accion=mostrarRegistrar&status=invalido');
+            return;
+        }
+
+        $respuesta = $this->model->registrarFamilia($nombre, $id_orden);
+
+        if ($respuesta['Exito'] == 1) {
+            header('Location: ?controlador=Taxonomia&accion=mostrar&tab=familias&status=registrada_success');
+        } else {
+            header('Location: ?controlador=Familia&accion=mostrarRegistrar&status=error');
+        }
+    }
+
     public function editar()
     {
         $id = trim($_POST['id_familia']);
@@ -44,7 +63,7 @@ class FamiliaController
         $resultado = $this->model->editarFamilia($id, $nombre, $id_orden);
 
         if ($resultado) {
-            header('Location: ?controlador=Familia&accion=mostrarListar&status=familia_editada');
+            header('Location: ?controlador=Taxonomia&accion=mostrar&tab=familias&status=familia_editada');
         } else {
             header("Location: ?controlador=Familia&accion=mostrarEditar&id=$id&status=error");
         }
@@ -62,25 +81,6 @@ class FamiliaController
         require_once 'model/OrdenModel.php';
         $ordenes = (new OrdenModel())->listarOrdenes();
         $this->view->show('registrarFamiliaView.php', ['ordenes' => $ordenes]);
-    }
-
-    public function registrar()
-    {
-        $nombre   = trim($_POST['nombre']);
-        $id_orden = trim($_POST['id_orden']);
-
-        if (empty($nombre) || empty($id_orden)) {
-            header('Location: ?controlador=Familia&accion=mostrarRegistrar&status=invalido');
-            return;
-        }
-
-        $respuesta = $this->model->registrarFamilia($nombre, $id_orden);
-
-        if ($respuesta['Exito'] == 1) {
-            header('Location: ?controlador=Familia&accion=mostrarListar&status=registrada_success');
-        } else {
-            header('Location: ?controlador=Familia&accion=mostrarRegistrar&status=error');
-        }
     }
 }
 ?>

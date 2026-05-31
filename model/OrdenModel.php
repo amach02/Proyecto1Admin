@@ -30,5 +30,24 @@ class OrdenModel
             return ['Resultado' => 'Error de conexión a la base de datos.', 'Exito' => 0];
         }
     }
+
+    public function buscarOrdenPorId($id_orden)
+    {
+        $consulta = $this->db->prepare('CALL sp_buscarOrdenPorId(?)');
+        $consulta->execute([$id_orden]);
+        $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+        $consulta->closeCursor();
+        return $resultado;
+    }
+
+    public function editarOrden($id_orden, $nombre)
+    {
+        try {
+            $consulta = $this->db->prepare('CALL sp_editarOrden(?, ?)');
+            return $consulta->execute([$id_orden, $nombre]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
 }
 ?>

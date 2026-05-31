@@ -30,5 +30,19 @@ class EspecieModel
             return ['Resultado' => 'Error de conexión a la base de datos.', 'Exito' => 0];
         }
     }
+
+    public function buscarEspeciePorId($id_especie) {
+        $consulta = $this->db->prepare('CALL sp_buscarEspeciePorId(?)');
+        $consulta->execute([$id_especie]);
+        $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+        $consulta->closeCursor(); return $resultado;
+    }
+
+    public function editarEspecie($id, $nombre, $id_genero) {
+        try {
+            $consulta = $this->db->prepare('CALL sp_editarEspecie(?, ?, ?)');
+            return $consulta->execute([$id, $nombre, $id_genero]);
+        } catch (PDOException $e) { return false; }
+    }
 }
 ?>

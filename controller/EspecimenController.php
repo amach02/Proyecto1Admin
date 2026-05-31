@@ -22,10 +22,17 @@ class EspecimenController
         }
 
         $id = $_GET['id'];
+        
         $datosEspecimen = $this->model->buscarEspecimenPorId($id);
 
         if ($datosEspecimen) {
-            $this->view->show('editarEspecimenView.php', ['especimen' => $datosEspecimen]);
+            require_once 'model/EspecieModel.php';
+            $listaEspecies = (new EspecieModel())->listarEspecies();
+
+            $this->view->show('editarEspecimenView.php', [
+                'especimen' => $datosEspecimen,
+                'especies'  => $listaEspecies
+            ]);
         } else {
             header('Location: ?controlador=Index&accion=mostrar&status=no_encontrado');
         }

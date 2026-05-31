@@ -127,7 +127,7 @@
             </div>
             <table class="table table-bordered table-hover" id="tablaGavetas">
                 <thead class="table-dark">
-                    <tr><th>Código Gaveta</th><th>Gabinete</th><th>Estado Gabinete</th></tr>
+                    <tr><th>Código Gaveta</th><th>Gabinete</th><th>Estado Gabinete</th><th>Acciones</th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($gavetas as $gav): ?>
@@ -139,10 +139,14 @@
                                 <?php echo ucfirst($gav['estado_gabinete']); ?>
                             </span>
                         </td>
+                        <td>
+                            <a href="?controlador=Gaveta&accion=mostrarEditar&id=<?php echo $gav['id_gaveta']; ?>" class="btn btn-warning btn-sm">Editar</a>
+                            <a href="?controlador=Gaveta&accion=inhabilitar&id=<?php echo $gav['id_gaveta']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Deshabilitar gaveta? Se validará que no tenga cajas con insectos.');">Inhabilitar</a>
+                        </td>
                     </tr>
                     <?php endforeach; ?>
                     <?php if (empty($gavetas)): ?>
-                    <tr><td colspan="3" class="text-center text-muted">Sin registros.</td></tr>
+                    <tr><td colspan="4" class="text-center text-muted">Sin registros.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
@@ -165,7 +169,7 @@
             </div>
             <table class="table table-bordered table-hover" id="tablaCajas">
                 <thead class="table-dark">
-                    <tr><th>Código Caja</th><th>Gabinete</th><th>Gaveta</th></tr>
+                    <tr><th>Código Caja</th><th>Gabinete</th><th>Gaveta</th><th>Acciones</th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($cajas as $c): ?>
@@ -173,10 +177,14 @@
                         <td><?php echo htmlspecialchars($c['codigo']); ?></td>
                         <td><?php echo htmlspecialchars($c['gabinete']); ?></td>
                         <td><?php echo htmlspecialchars($c['gaveta']); ?></td>
+                        <td>
+                            <a href="?controlador=Caja&accion=mostrarEditar&id=<?php echo $c['id_caja']; ?>" class="btn btn-warning btn-sm">Editar</a>
+                            <a href="?controlador=Caja&accion=inhabilitar&id=<?php echo $c['id_caja']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Deshabilitar caja? Se validará que no tenga viales con insectos.');">Inhabilitar</a>
+                        </td>
                     </tr>
                     <?php endforeach; ?>
                     <?php if (empty($cajas)): ?>
-                    <tr><td colspan="3" class="text-center text-muted">Sin registros.</td></tr>
+                    <tr><td colspan="4" class="text-center text-muted">Sin registros.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
@@ -191,7 +199,7 @@
             <p class="text-muted small">Solo se muestran viales sin espécimen asignado y en gabinetes activos.</p>
             <table class="table table-bordered table-hover">
                 <thead class="table-dark">
-                    <tr><th>Ruta Completa</th><th>Vial</th><th>Caja</th><th>Gaveta</th><th>Gabinete</th></tr>
+                    <tr><th>Ruta Completa</th><th>Vial</th><th>Caja</th><th>Gaveta</th><th>Gabinete</th><th>Acciones</th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($viales as $v): ?>
@@ -201,10 +209,14 @@
                         <td><?php echo htmlspecialchars($v['caja']); ?></td>
                         <td><?php echo htmlspecialchars($v['gaveta']); ?></td>
                         <td><?php echo htmlspecialchars($v['gabinete']); ?></td>
+                        <td>
+                            <a href="?controlador=Vial&accion=mostrarEditar&id=<?php echo $v['id_vial']; ?>" class="btn btn-warning btn-sm">Editar</a>
+                            <a href="?controlador=Vial&accion=inhabilitar&id=<?php echo $v['id_vial']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Deshabilitar vial?');">Inhabilitar</a>
+                        </td>
                     </tr>
                     <?php endforeach; ?>
                     <?php if (empty($viales)): ?>
-                    <tr><td colspan="5" class="text-center text-muted">No hay viales disponibles.</td></tr>
+                    <tr><td colspan="6" class="text-center text-muted">No hay viales disponibles.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
