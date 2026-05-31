@@ -1,22 +1,28 @@
 <?php
 
-class FrontController {
+class FrontController
+{
 
-    static function main() {
+    static function main()
+    {
         require 'libs/View.php';
         require 'libs/configuration.php';
+        require 'libs/Auth.php';
+
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
 
         $config = Config::singleton();
 
-        // 1. Obtener nombre del controlador (Ej: Retiro)
-        $controladorURL = !empty($_GET['controlador']) ? $_GET['controlador'] : 'Index';
-        $controllerName = $controladorURL . 'Controller';
-
-        // 2. Obtener nombre de la acción (Ej: procesarRetiro)
-        $nombreAccion = !empty($_GET['accion']) ? $_GET['accion'] : 'mostrar';
-
-        // 3. Ruta del archivo
+        $controladorURL = (isset($_GET['controlador']) && $_GET['controlador'] != '') ? $_GET['controlador'] : 'Session';
+        $nombreAccion   = (isset($_GET['accion'])      && $_GET['accion']      != '') ? $_GET['accion']      : 'mostrarLogin';
+        $controllerName  = $controladorURL . 'Controller';
+        $nombreAccion    = !empty($_GET['accion']) ? $_GET['accion'] : 'mostrarLogin';
         $rutaControlador = $config->get('controllerFolder') . $controllerName . '.php';
+
+        // Verificar acceso ANTES de cargar cualquier controlador
+        Auth::verificar($controladorURL, $nombreAccion);
 
         if (is_file($rutaControlador)) {
             require $rutaControlador;
@@ -24,19 +30,16 @@ class FrontController {
             die("<b>Error:</b> No existe el archivo <code>$rutaControlador</code>");
         }
 
-        // 4. Validar si la clase existe
         if (!class_exists($controllerName)) {
-            die("<b>Error:</b> La clase <code>$controllerName</code> no existe dentro del archivo.");
+            die("<b>Error:</b> La clase <code>$controllerName</code> no existe.");
         }
 
         $controller = new $controllerName();
 
-        // 5. Validar si la FUNCIÓN existe (Aquí es donde te daba el error 40)
         if (method_exists($controller, $nombreAccion)) {
             $controller->$nombreAccion();
         } else {
-            die("<b>Error:</b> El controlador <code>$controllerName</code> no tiene la función <code>$nombreAccion</code>. <br> 
-                 <i>Sugerencia: Revisa que en el archivo dice 'public function $nombreAccion'</i>");
+            die("<b>Error:</b> El controlador <code>$controllerName</code> no tiene la función <code>$nombreAccion</code>.");
         }
     }
 }
