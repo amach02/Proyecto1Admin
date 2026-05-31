@@ -11,22 +11,22 @@
 
     $familiasPorOrden = [];
     foreach ($familias as $f) {
-        $id_o = $ordenIdByNombre[$f['orden']] ?? null;
+        $id_o = isset($ordenIdByNombre[$f['orden']]) ? $ordenIdByNombre[$f['orden']] : null;
         if ($id_o !== null) {
-            $familiasPorOrden[$id_o][] = ['id' => $f['id_familia'], 'nombre' => $f['nombre']];
+            $familiasPorOrden[$id_o][] = array('id' => $f['id_familia'], 'nombre' => $f['nombre']);
         }
     }
 
-    $familiaIdByNombre = [];
+    $familiaIdByNombre = array();
     foreach ($familias as $f) {
         $familiaIdByNombre[$f['nombre']] = $f['id_familia'];
     }
 
-    $generosPorFamilia = [];
+    $generosPorFamilia = array();
     foreach ($generos as $g) {
-        $id_f = $familiaIdByNombre[$g['familia']] ?? null;
+        $id_f = isset($familiaIdByNombre[$g['familia']]) ? $familiaIdByNombre[$g['familia']] : null;
         if ($id_f !== null) {
-            $generosPorFamilia[$id_f][] = ['id' => $g['id_genero'], 'nombre' => $g['nombre']];
+            $generosPorFamilia[$id_f][] = array('id' => $g['id_genero'], 'nombre' => $g['nombre']);
         }
     }
 ?>

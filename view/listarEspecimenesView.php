@@ -52,21 +52,22 @@
                     <?php foreach ($especimenes as $e): ?>
                     <tr>
                         <td><strong><?php echo htmlspecialchars($e['codigo_id']); ?></strong></td>
-                        <td><em><?php echo htmlspecialchars($e['especie'] ?? '—'); ?></em></td>
-                        <td><?php echo htmlspecialchars($e['localizacion_recoleccion'] ?? '—'); ?></td>
-                        <td><?php echo $e['fecha_recoleccion'] ?? '—'; ?></td>
+                        <td><em><?php echo htmlspecialchars(isset($e['especie']) ? $e['especie'] : '—'); ?></em></td>
+                        <td><?php echo htmlspecialchars(isset($e['localizacion_recoleccion']) ? $e['localizacion_recoleccion'] : '—'); ?></td>
+                        <td><?php echo isset($e['fecha_recoleccion']) ? $e['fecha_recoleccion'] : '—'; ?></td>
                         <td>
                             <?php
-                            $badgeClass = [
-                                'disponible'             => 'bg-success',
-                                'prestado'               => 'bg-warning text-dark',
+                            $badgeMap = array(
+                                'disponible'               => 'bg-success',
+                                'prestado'                 => 'bg-warning text-dark',
                                 'pendiente_identificacion' => 'bg-secondary'
-                            ][$e['estado']] ?? 'bg-light text-dark';
+                            );
+                            $badgeClass  = isset($badgeMap[$e['estado']]) ? $badgeMap[$e['estado']] : 'bg-light text-dark';
                             $estadoLabel = str_replace('_', ' ', ucfirst($e['estado']));
                             ?>
                             <span class="badge <?php echo $badgeClass; ?>"><?php echo $estadoLabel; ?></span>
                         </td>
-                        <td><small><?php echo htmlspecialchars($e['ubicacion_fisica'] ?? '—'); ?></small></td>
+                        <td><small><?php echo htmlspecialchars(isset($e['ubicacion_fisica']) ? $e['ubicacion_fisica'] : '—'); ?></small></td>
                         <td>
                             <a href="?controlador=Especimen&accion=mostrarEditar&id=<?php echo $e['id_especimen']; ?>"
                                class="btn btn-warning btn-sm">Editar</a>

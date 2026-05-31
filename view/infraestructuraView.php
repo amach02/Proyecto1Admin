@@ -11,22 +11,22 @@
 
     $gavetasPorGabinete = [];
     foreach ($gavetas as $gav) {
-        $id_gab = $gabineteIdByCodigo[$gav['gabinete']] ?? null;
+        $id_gab = isset($gabineteIdByCodigo[$gav['gabinete']]) ? $gabineteIdByCodigo[$gav['gabinete']] : null;
         if ($id_gab !== null) {
-            $gavetasPorGabinete[$id_gab][] = ['id' => $gav['id_gaveta'], 'codigo' => $gav['codigo']];
+            $gavetasPorGabinete[$id_gab][] = array('id' => $gav['id_gaveta'], 'codigo' => $gav['codigo']);
         }
     }
 
-    $gavetaIdByCodigo = [];
+    $gavetaIdByCodigo = array();
     foreach ($gavetas as $gav) {
         $gavetaIdByCodigo[$gav['codigo']] = $gav['id_gaveta'];
     }
 
-    $cajasPorGaveta = [];
+    $cajasPorGaveta = array();
     foreach ($cajas as $c) {
-        $id_gav = $gavetaIdByCodigo[$c['gaveta']] ?? null;
+        $id_gav = isset($gavetaIdByCodigo[$c['gaveta']]) ? $gavetaIdByCodigo[$c['gaveta']] : null;
         if ($id_gav !== null) {
-            $cajasPorGaveta[$id_gav][] = ['id' => $c['id_caja'], 'codigo' => $c['codigo']];
+            $cajasPorGaveta[$id_gav][] = array('id' => $c['id_caja'], 'codigo' => $c['codigo']);
         }
     }
 ?>
@@ -82,7 +82,7 @@
                     <?php foreach ($gabinetes as $g): ?>
                     <tr>
                         <td><strong><?php echo htmlspecialchars($g['codigo']); ?></strong></td>
-                        <td><?php echo htmlspecialchars($g['descripcion'] ?? '—'); ?></td>
+                        <td><?php echo htmlspecialchars(isset($g['descripcion']) ? $g['descripcion'] : '—'); ?></td>
                         <td>
                             <?php if ($g['estado'] === 'activo'): ?>
                             <span class="badge bg-success">Activo</span>
