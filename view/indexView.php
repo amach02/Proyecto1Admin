@@ -5,11 +5,11 @@
     <div class="text-center mb-5">
 
         <h1>
-            Bienvenidos al laboratorio de Etomología Universidad de Costa Rica
+            Bienvenidos al laboratorio de Entomología Universidad de Costa Rica
         </h1>
 
         <p class="text-muted">
-            Sistema de la Universidad de Costa Rica para la gestión de productos del laboratorio de Etomología
+            Sistema de la Universidad de Costa Rica para la gestión de productos del laboratorio de Entomología
         </p>
 
     </div>
