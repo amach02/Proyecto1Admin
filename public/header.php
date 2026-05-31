@@ -16,17 +16,37 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarMenu">
         <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="?controlador=Producto&accion=mostrar">Productos</a>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Especímenes</a>
+                <ul class="dropdown-menu dropdown-menu-dark">
+                    <li><a class="dropdown-item" href="?controlador=Especimen&accion=mostrarListar">Listar</a></li>
+                    <li><a class="dropdown-item" href="?controlador=Especimen&accion=mostrarRegistrar">Registrar</a></li>
+                </ul>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="?controlador=Cliente&accion=mostrar">Clientes</a>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Taxonomía</a>
+                <ul class="dropdown-menu dropdown-menu-dark">
+                    <li><a class="dropdown-item" href="?controlador=Taxonomia&accion=mostrar&tab=ordenes">Órdenes</a></li>
+                    <li><a class="dropdown-item" href="?controlador=Taxonomia&accion=mostrar&tab=familias">Familias</a></li>
+                    <li><a class="dropdown-item" href="?controlador=Taxonomia&accion=mostrar&tab=generos">Géneros</a></li>
+                    <li><a class="dropdown-item" href="?controlador=Taxonomia&accion=mostrar&tab=especies">Especies</a></li>
+                </ul>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="?controlador=Factura&accion=mostrar">Facturar</a>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Infraestructura</a>
+                <ul class="dropdown-menu dropdown-menu-dark">
+                    <li><a class="dropdown-item" href="?controlador=Infraestructura&accion=mostrar&tab=gabinetes">Gabinetes</a></li>
+                    <li><a class="dropdown-item" href="?controlador=Infraestructura&accion=mostrar&tab=gavetas">Gavetas</a></li>
+                    <li><a class="dropdown-item" href="?controlador=Infraestructura&accion=mostrar&tab=cajas">Cajas</a></li>
+                    <li><a class="dropdown-item" href="?controlador=Infraestructura&accion=mostrar&tab=viales">Viales</a></li>
+                </ul>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="?controlador=Reporte&accion=mostrar">Reportes</a>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Usuarios</a>
+                <ul class="dropdown-menu dropdown-menu-dark">
+                    <li><a class="dropdown-item" href="?controlador=Usuario&accion=mostrarListar">Listar</a></li>
+                    <li><a class="dropdown-item" href="?controlador=Usuario&accion=mostrarRegistrar">Registrar</a></li>
+                </ul>
             </li>
         </ul>
     </div>

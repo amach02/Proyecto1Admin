@@ -66,10 +66,91 @@ class UsuarioController
         $resultado = $this->model->inhabilitarUsuario($id);
 
         if ($resultado) {
-            header('Location: ?controlador=Index&accion=mostrar&status=inhabilitado_success');
+            header('Location: ?controlador=Usuario&accion=mostrarListar&status=inhabilitado_success');
         } else {
             header('Location: ?controlador=Index&accion=mostrar&status=error');
         }
+    }
+
+    public function mostrarListar()
+    {
+        $usuarios = $this->model->listarUsuarios();
+        $this->view->show('listarUsuariosView.php', ['usuarios' => $usuarios]);
+    }
+
+    public function mostrarRegistrar()
+    {
+        $this->view->show('registrarUsuarioView.php', []);
+    }
+
+    public function registrar()
+    {
+        $nombre   = trim($_POST['nombre']);
+        $correo   = trim($_POST['correo']);
+        $contrasena = trim($_POST['contrasena']);
+        $id_rol   = trim($_POST['id_rol']);
+
+        if (empty($nombre) || empty($correo) || empty($contrasena) || empty($id_rol)) {
+            header('Location: ?controlador=Usuario&accion=mostrarRegistrar&status=invalido');
+            return;
+        }
+
+        $respuesta = $this->model->registrarUsuario($nombre, $correo, $contrasena, $id_rol);
+
+        if ($respuesta['Exito'] == 1) {
+            header('Location: ?controlador=Usuario&accion=mostrarListar&status=registrado_success');
+        } else {
+            header('Location: ?controlador=Usuario&accion=mostrarRegistrar&status=error');
+        }
+    }
+
+    public function buscarPorCorreo()
+    {
+        $correo = isset($_GET['correo']) ? trim($_GET['correo']) : '';
+
+        if (empty($correo)) {
+            header('Location: ?controlador=Usuario&accion=mostrarListar&status=invalido');
+            return;
+        }
+
+        $usuario = $this->model->buscarUsuarioPorCorreo($correo);
+        $this->view->show('listarUsuariosView.php', ['usuarios' => $usuario ? [$usuario] : [], 'busqueda' => $correo]);
+    }
+
+    public function autenticar()
+    {
+        $correo = trim($_POST['correo']);
+        $contrasena = trim($_POST['contrasena']);
+
+        if (empty($correo) || empty($contrasena)) {
+            header('Location: ?controlador=Index&accion=mostrar&status=invalido');
+            return;
+        }
+
+        $datos = $this->model->autenticarUsuario($correo);
+
+        if (!$datos || $datos['id_usuario'] === null) {
+            header('Location: ?controlador=Index&accion=mostrar&status=correo_no_registrado');
+            return;
+        }
+
+        if ($datos['estado'] === 'inhabilitado') {
+            header('Location: ?controlador=Index&accion=mostrar&status=inhabilitado');
+            return;
+        }
+
+        $hashIngresado = hash('sha256', $contrasena);
+        if ($hashIngresado !== $datos['contrasena_hash']) {
+            header('Location: ?controlador=Index&accion=mostrar&status=contrasena_incorrecta');
+            return;
+        }
+
+        session_start();
+        $_SESSION['id_usuario']  = $datos['id_usuario'];
+        $_SESSION['nombre']      = $datos['nombre'];
+        $_SESSION['nombre_rol']  = $datos['nombre_rol'];
+
+        header('Location: ?controlador=Index&accion=mostrar');
     }
 }
 ?>

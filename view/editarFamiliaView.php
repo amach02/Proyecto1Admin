@@ -24,8 +24,12 @@
             <div class="mb-3">
                 <label class="form-label">Orden Jerárquico al que pertenece (Padre)</label>
                 <select name="id_orden" class="form-control" required>
-                    <option value="1" <?php echo ($familia['id_orden'] == 1) ? 'selected' : ''; ?>>Hymenoptera</option>
-                    <option value="2" <?php echo ($familia['id_orden'] == 2) ? 'selected' : ''; ?>>Lepidoptera</option>
+                    <?php foreach ($ordenes as $o): ?>
+                    <option value="<?php echo $o['id_orden']; ?>"
+                        <?php echo ($familia['id_orden'] == $o['id_orden']) ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($o['nombre']); ?>
+                    </option>
+                    <?php endforeach; ?>
                 </select>
                 <div class="form-text">La familia debe pertenecer obligatoriamente a un orden existente.</div>
             </div>
@@ -33,7 +37,7 @@
             <div class="d-flex justify-content-between mt-4">
                 <div>
                     <button type="submit" class="btn btn-success">Guardar Corrección</button>
-                    <a href="?controlador=Index&accion=mostrar" class="btn btn-secondary">Volver al Catálogo</a>
+                    <a href="?controlador=Taxonomia&accion=mostrar&tab=familias" class="btn btn-secondary">Volver al Catálogo</a>
                 </div>
             </div>
         </form>

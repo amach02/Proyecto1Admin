@@ -44,5 +44,45 @@ class UsuarioModel
             return false;
         }
     }
+
+    public function listarUsuarios()
+    {
+        $consulta = $this->db->prepare('CALL sp_listar_usuarios()');
+        $consulta->execute();
+        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        $consulta->closeCursor();
+        return $resultado;
+    }
+
+    public function registrarUsuario($nombre, $correo, $contrasena, $id_rol)
+    {
+        try {
+            $consulta = $this->db->prepare('CALL sp_registrar_usuario(?, ?, ?, ?)');
+            $consulta->execute([$nombre, $correo, $contrasena, $id_rol]);
+            $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+            $consulta->closeCursor();
+            return $resultado;
+        } catch (PDOException $e) {
+            return ['Resultado' => 'Error de conexión a la base de datos.', 'Exito' => 0];
+        }
+    }
+
+    public function autenticarUsuario($correo)
+    {
+        $consulta = $this->db->prepare('CALL sp_autenticar_usuario(?)');
+        $consulta->execute([$correo]);
+        $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+        $consulta->closeCursor();
+        return $resultado;
+    }
+
+    public function buscarUsuarioPorCorreo($correo)
+    {
+        $consulta = $this->db->prepare('CALL sp_buscarUsuarioPorCorreo(?)');
+        $consulta->execute([$correo]);
+        $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+        $consulta->closeCursor();
+        return $resultado;
+    }
 }
 ?>

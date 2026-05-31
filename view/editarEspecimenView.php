@@ -45,7 +45,13 @@
                     <label class="form-label">Clasificación Taxonómica (Especie)</label>
                     <select name="id_especie" class="form-control">
                         <option value="">-- Sin Clasificar / Datos Parciales --</option>
-                        <option value="1" <?php echo ($especimen['id_especie'] == 1) ? 'selected' : ''; ?>>Apis mellifera</option>
+                        <?php foreach ($especies as $esp): ?>
+                        <option value="<?php echo $esp['id_especie']; ?>"
+                            <?php echo ($especimen['id_especie'] == $esp['id_especie']) ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($esp['especie']); ?>
+                            (<?php echo htmlspecialchars($esp['genero']); ?>)
+                        </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
 
@@ -53,8 +59,18 @@
                     <label class="form-label">Ubicación Asignada (Vial)</label>
                     <select name="id_vial" class="form-control">
                         <option value="">-- Sin Ubicación Física Asignada --</option>
-                        <option value="1" <?php echo ($especimen['id_vial'] == 1) ? 'selected' : ''; ?>>VIAL-01 (Caja 01)</option>
+                        <?php if (!empty($especimen['id_vial'])): ?>
+                        <option value="<?php echo $especimen['id_vial']; ?>" selected>
+                            Vial actual (ID <?php echo $especimen['id_vial']; ?>) — asignado a este espécimen
+                        </option>
+                        <?php endif; ?>
+                        <?php foreach ($viales as $v): ?>
+                        <option value="<?php echo $v['id_vial']; ?>">
+                            <?php echo htmlspecialchars($v['ruta_completa']); ?>
+                        </option>
+                        <?php endforeach; ?>
                     </select>
+                    <div class="form-text">Los viales listados están disponibles para reasignación.</div>
                 </div>
             </div>
 

@@ -61,10 +61,40 @@ class GabineteController
         $respuesta = $this->model->inhabilitarGabinete($id);
 
         if ($respuesta['Exito'] == 1) {
-            header('Location: ?controlador=Index&accion=mostrar&status=gabinete_inhabilitado');
+            header('Location: ?controlador=Gabinete&accion=mostrarListar&status=gabinete_inhabilitado');
         } else {
             // Si el SP devolvió Exito = 0 significa que falló por la validación de insectos dentro
             header("Location: ?controlador=Gabinete&accion=mostrarEditar&id=$id&status=con_especimenes");
+        }
+    }
+
+    public function mostrarListar()
+    {
+        $gabinetes = $this->model->listarGabinetes();
+        $this->view->show('listarGabinetesView.php', ['gabinetes' => $gabinetes]);
+    }
+
+    public function mostrarRegistrar()
+    {
+        $this->view->show('registrarGabineteView.php', []);
+    }
+
+    public function registrar()
+    {
+        $codigo      = trim($_POST['codigo']);
+        $descripcion = trim($_POST['descripcion']);
+
+        if (empty($codigo)) {
+            header('Location: ?controlador=Gabinete&accion=mostrarRegistrar&status=invalido');
+            return;
+        }
+
+        $respuesta = $this->model->registrarGabinete($codigo, $descripcion);
+
+        if ($respuesta['Exito'] == 1) {
+            header('Location: ?controlador=Gabinete&accion=mostrarListar&status=registrado_success');
+        } else {
+            header('Location: ?controlador=Gabinete&accion=mostrarRegistrar&status=error');
         }
     }
 }
