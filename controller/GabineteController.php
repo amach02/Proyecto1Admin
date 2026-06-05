@@ -1,5 +1,7 @@
 <?php
 require_once 'model/GabineteModel.php';
+// Requerimos el modelo de Gaveta para poder listarlas en la vista de edición
+require_once 'model/GavetaModel.php';
 
 class GabineteController
 {
@@ -15,22 +17,21 @@ class GabineteController
 
     public function mostrarEditar()
     {
-        if (!isset($_GET['id'])) {
-            header('Location: ?controlador=Index&accion=mostrar&status=error');
-            return;
-        }
-
+        if (!isset($_GET['id'])) return;
         $id = $_GET['id'];
-        $datosGabinete = $this->model->buscarGabinetePorId($id);
+        
+        $gabinete = $this->model->buscarGabinetePorId($id);
+        
+        // Corregido: Llamamos a listarPorGabinete en lugar de listarGabinetes
+        $gavetas = (new GavetaModel())->listarPorGabinete($id); 
 
-        if ($datosGabinete) {
-            $this->view->show('editarGabineteView.php', ['gabinete' => $datosGabinete]);
-        } else {
-            header('Location: ?controlador=Index&accion=mostrar&status=no_encontrado');
-        }
+        $this->view->show('editarGabineteView.php', array(
+            'gabinete' => $gabinete,
+            'gavetas'  => $gavetas
+        ));
     }
 
-public function registrar()
+    public function registrar()
     {
         $codigo      = trim($_POST['codigo']);
         $descripcion = trim($_POST['descripcion']);
@@ -51,8 +52,8 @@ public function registrar()
 
     public function editar()
     {
-        $id = trim($_POST['id_gabinete']);
-        $codigo = trim($_POST['codigo']);
+        $id          = trim($_POST['id_gabinete']);
+        $codigo      = trim($_POST['codigo']);
         $descripcion = trim($_POST['descripcion']);
 
         if (empty($id) || empty($codigo)) {
@@ -86,17 +87,15 @@ public function registrar()
         }
     }
 
-
     public function mostrarListar()
     {
         $gabinetes = $this->model->listarGabinetes();
-        $this->view->show('listarGabinetesView.php', ['gabinetes' => $gabinetes]);
+        $this->view->show('listarGabinetesView.php', array('gabinetes' => $gabinetes));
     }
 
     public function mostrarRegistrar()
     {
-        $this->view->show('registrarGabineteView.php', []);
+        $this->view->show('registrarGabineteView.php', array());
     }
-
 }
 ?>

@@ -17,17 +17,17 @@ class GavetaController
     {
         $id_gabinete = isset($_GET['id_gabinete']) ? (int)$_GET['id_gabinete'] : 0;
         $gavetas = $this->model->listarGavetas($id_gabinete);
-        $this->view->show('listarGavetasView.php', ['gavetas' => $gavetas]);
+        $this->view->show('listarGavetasView.php', array('gavetas' => $gavetas));
     }
 
     public function mostrarRegistrar()
     {
         require_once 'model/GabineteModel.php';
         $gabinetes = (new GabineteModel())->listarGabinetes();
-        $this->view->show('registrarGavetaView.php', ['gabinetes' => $gabinetes]);
+        $this->view->show('registrarGavetaView.php', array('gabinetes' => $gabinetes));
     }
 
-public function registrar()
+    public function registrar()
     {
         $codigo      = trim($_POST['codigo']);
         $id_gabinete = trim($_POST['id_gabinete']);
@@ -46,8 +46,12 @@ public function registrar()
         }
     }
 
-    public function editar() {
-        $id = trim($_POST['id_gaveta']); $codigo = trim($_POST['codigo']); $id_gabinete = trim($_POST['id_gabinete']);
+    public function editar() 
+    {
+        $id          = trim($_POST['id_gaveta']); 
+        $codigo      = trim($_POST['codigo']); 
+        $id_gabinete = trim($_POST['id_gabinete']);
+        
         if ($this->model->editarGaveta($id, $codigo, $id_gabinete)) {
             header('Location: ?controlador=Infraestructura&accion=mostrar&tab=gavetas&status=editado_success');
         } else { 
@@ -55,9 +59,16 @@ public function registrar()
         }
     }
 
-    public function inhabilitar() {
+    public function inhabilitar() 
+    {
+        if (!isset($_GET['id'])) {
+            header('Location: ?controlador=Index&accion=mostrar&status=error');
+            return;
+        }
+        
         $id = $_GET['id'];
         $respuesta = $this->model->inhabilitarGaveta($id);
+        
         if ($respuesta['Exito'] == 1) { 
             header('Location: ?controlador=Infraestructura&accion=mostrar&tab=gavetas&status=inhabilitado_success'); 
         } else { 
@@ -65,13 +76,21 @@ public function registrar()
         }
     }
 
-    public function mostrarEditar() {
-        if (!isset($_GET['id'])) { header('Location: ?controlador=Index&accion=mostrar&status=error'); return; }
+    public function mostrarEditar() 
+    {
+        if (!isset($_GET['id'])) { 
+            header('Location: ?controlador=Index&accion=mostrar&status=error'); 
+            return; 
+        }
+        
         $datos = $this->model->buscarGavetaPorId($_GET['id']);
+        
         if ($datos) {
             require_once 'model/GabineteModel.php';
             $gabinetes = (new GabineteModel())->listarGabinetes();
-            $this->view->show('editarGavetaView.php', ['gaveta' => $datos, 'gabinetes' => $gabinetes]);
+            $this->view->show('editarGavetaView.php', array('gaveta' => $datos, 'gabinetes' => $gabinetes));
+        } else {
+            header('Location: ?controlador=Infraestructura&accion=mostrar&tab=gavetas&status=error');
         }
     }
 }

@@ -1,5 +1,6 @@
 <?php
 require_once 'model/CajaModel.php';
+require_once 'model/VialModel.php'; // Agregamos Vial para listar sus dependientes
 
 class CajaController
 {
@@ -15,29 +16,25 @@ class CajaController
 
     public function mostrarListar()
     {
-        $id_gaveta = isset($_GET['id_gaveta']) ? (int)$_GET['id_gaveta'] : 0;
-        $cajas = $this->model->listarCajas($id_gaveta);
-        $this->view->show('listarCajasView.php', ['cajas' => $cajas]);
+        $cajas = $this->model->listarCajas();
+        $this->view->show('listarCajasView.php', array('cajas' => $cajas));
     }
 
     public function mostrarRegistrar()
     {
-        require_once 'model/GavetaModel.php';
-        $gavetas = (new GavetaModel())->listarGavetas();
-        $this->view->show('registrarCajaView.php', ['gavetas' => $gavetas]);
+        $this->view->show('registrarCajaView.php', array());
     }
 
     public function registrar()
     {
-        $codigo    = trim($_POST['codigo']);
-        $id_gaveta = trim($_POST['id_gaveta']);
+        $codigo = trim($_POST['codigo']);
 
-        if (empty($codigo) || empty($id_gaveta)) {
+        if (empty($codigo)) {
             header('Location: ?controlador=Infraestructura&accion=mostrar&tab=cajas&status=invalido');
             return;
         }
 
-        $respuesta = $this->model->registrarCaja($codigo, $id_gaveta);
+        $respuesta = $this->model->registrarCaja($codigo);
 
         if ($respuesta['Exito'] == 1) {
             header('Location: ?controlador=Infraestructura&accion=mostrar&tab=cajas&status=registrada_success');
@@ -46,28 +43,55 @@ class CajaController
         }
     }
 
-    public function mostrarEditar() {
-        if (!isset($_GET['id'])) { header('Location: ?controlador=Index&accion=mostrar&status=error'); return; }
+    public function mostrarEditar() 
+    {
+        if (!isset($_GET['id'])) { 
+            header('Location: ?controlador=Index&accion=mostrar&status=error'); 
+            return; 
+        }
+        
         $datos = $this->model->buscarCajaPorId($_GET['id']);
+        
         if ($datos) {
-            require_once 'model/GavetaModel.php';
-            $gavetas = (new GavetaModel())->listarGavetas();
-            $this->view->show('editarCajaView.php', ['caja' => $datos, 'gavetas' => $gavetas]);
+            // Traemos los viales que pertenecen a esta caja
+            $viales = (new VialModel())->listarPorCaja($_GET['id']);
+            if (!$viales) {
+                $viales = array();
+            }
+            
+            $this->view->show('editarCajaView.php', array('caja' => $datos, 'viales' => $viales));
+        } else {
+            header('Location: ?controlador=Infraestructura&accion=mostrar&tab=cajas&status=error');
         }
     }
 
-    public function editar() {
-        $id = trim($_POST['id_caja']); $codigo = trim($_POST['codigo']); $id_gaveta = trim($_POST['id_gaveta']);
-        if ($this->model->editarCaja($id, $codigo, $id_gaveta)) {
+    public function editar() 
+    {
+        $id     = trim($_POST['id_caja']); 
+        $codigo = trim($_POST['codigo']); 
+        
+        if (empty($id) || empty($codigo)) {
+            header("Location: ?controlador=Caja&accion=mostrarEditar&id=$id&status=invalido"); 
+            return;
+        }
+
+        if ($this->model->editarCaja($id, $codigo)) {
             header('Location: ?controlador=Infraestructura&accion=mostrar&tab=cajas&status=editado_success');
         } else { 
             header("Location: ?controlador=Caja&accion=mostrarEditar&id=$id&status=error"); 
         }
     }
 
-    public function inhabilitar() {
+    public function inhabilitar() 
+    {
+        if (!isset($_GET['id'])) {
+            header('Location: ?controlador=Index&accion=mostrar&status=error');
+            return;
+        }
+
         $id = $_GET['id'];
         $respuesta = $this->model->inhabilitarCaja($id);
+        
         if ($respuesta['Exito'] == 1) { 
             header('Location: ?controlador=Infraestructura&accion=mostrar&tab=cajas&status=inhabilitado_success'); 
         } else { 

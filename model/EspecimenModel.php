@@ -64,23 +64,34 @@ class EspecimenModel
         return $resultado;
     }
 
-    public function registrarEspecimen($codigo_id, $localizacion, $fecha, $estado, $id_especie, $id_vial, $id_usuario)
-    {
-        try {
-            $localizacion = empty($localizacion) ? null : $localizacion;
-            $fecha = empty($fecha) ? null : $fecha;
-            $id_especie = empty($id_especie) ? null : $id_especie;
-            $id_vial = empty($id_vial) ? null : $id_vial;
+    public function registrarEspecimen($codigo_id, $localizacion, $fecha, $estado, $id_especie, $id_gaveta, $id_vial, $id_usuario)
+{
+    try {
+        $localizacion = empty($localizacion) ? null : $localizacion;
+        $fecha = empty($fecha) ? null : $fecha;
+        $id_especie = empty($id_especie) ? null : $id_especie;
+        
+        // NUEVO: Validación para la Gaveta (Ruta Seca)
+        $id_gaveta = empty($id_gaveta) ? null : $id_gaveta;
+        
+        // Mantenemos la validación para el Vial (Ruta Líquida)
+        $id_vial = empty($id_vial) ? null : $id_vial;
 
-            $consulta = $this->db->prepare('CALL sp_registrar_especimen(?, ?, ?, ?, ?, ?, ?)');
-            $consulta->execute([$codigo_id, $localizacion, $fecha, $estado, $id_especie, $id_vial, $id_usuario]);
-            $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
-            $consulta->closeCursor();
-            return $resultado;
-        } catch (PDOException $e) {
-            return ['Resultado' => 'Error de conexión a la base de datos.', 'Exito' => 0];
-        }
+        // NUEVO: Agregamos un signo de interrogación extra (?) porque ahora son 8 parámetros
+        $consulta = $this->db->prepare('CALL sp_registrar_especimen(?, ?, ?, ?, ?, ?, ?, ?)');
+        
+        // NUEVO: Incluimos $id_gaveta en el arreglo (asegúrate de que el orden coincida con tu SP)
+        $consulta->execute([$codigo_id, $localizacion, $fecha, $estado, $id_especie, $id_gaveta, $id_vial, $id_usuario]);
+        
+        $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+        $consulta->closeCursor();
+        return $resultado;
+        
+    } catch (PDOException $e) {
+        // Tip: Si quieres ver el error real en desarrollo, puedes cambiar el mensaje temporalmente a $e->getMessage()
+        return ['Resultado' => 'Error de conexión a la base de datos.', 'Exito' => 0];
     }
+}
 
     public function vincularPlanta($id_especimen, $id_planta, $id_usuario)
     {

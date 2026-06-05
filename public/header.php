@@ -56,9 +56,7 @@
                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Infraestructura</a>
                 <ul class="dropdown-menu dropdown-menu-dark">
                     <li><a class="dropdown-item" href="?controlador=Infraestructura&accion=mostrar&tab=gabinetes">Gabinetes</a></li>
-                    <li><a class="dropdown-item" href="?controlador=Infraestructura&accion=mostrar&tab=gavetas">Gavetas</a></li>
                     <li><a class="dropdown-item" href="?controlador=Infraestructura&accion=mostrar&tab=cajas">Cajas</a></li>
-                    <li><a class="dropdown-item" href="?controlador=Infraestructura&accion=mostrar&tab=viales">Viales</a></li>
                 </ul>
             </li>
             <?php endif; ?>

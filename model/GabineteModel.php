@@ -12,7 +12,7 @@ class GabineteModel
     public function buscarGabinetePorId($id_gabinete)
     {
         $consulta = $this->db->prepare('CALL sp_buscarGabinetePorId(?)');
-        $consulta->execute([$id_gabinete]);
+        $consulta->execute(array($id_gabinete));
         $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
         $consulta->closeCursor();
         return $resultado;
@@ -22,7 +22,7 @@ class GabineteModel
     {
         try {
             $consulta = $this->db->prepare('CALL sp_editarGabinete(?, ?, ?)');
-            $resultado = $consulta->execute([$id_gabinete, $codigo, $descripcion]);
+            $resultado = $consulta->execute(array($id_gabinete, $codigo, $descripcion));
             $consulta->closeCursor();
             return $resultado;
         } catch (PDOException $e) {
@@ -34,13 +34,12 @@ class GabineteModel
     {
         try {
             $consulta = $this->db->prepare('CALL sp_inhabilitarGabinete(?)');
-            $consulta->execute([$id_gabinete]);
-            // Obtenemos la respuesta del SP (Resultado y Exito)
+            $consulta->execute(array($id_gabinete));
             $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
             $consulta->closeCursor();
             return $resultado;
         } catch (PDOException $e) {
-            return ['Resultado' => 'Error de conexión a la base de datos.', 'Exito' => 0];
+            return array('Resultado' => 'Error de conexión a la base de datos.', 'Exito' => 0);
         }
     }
 
@@ -57,12 +56,12 @@ class GabineteModel
     {
         try {
             $consulta = $this->db->prepare('CALL sp_registrar_gabinete(?, ?)');
-            $consulta->execute([$codigo, $descripcion]);
+            $consulta->execute(array($codigo, $descripcion));
             $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
             $consulta->closeCursor();
             return $resultado;
         } catch (PDOException $e) {
-            return ['Resultado' => 'Error de conexión a la base de datos.', 'Exito' => 0];
+            return array('Resultado' => 'Error de conexión a la base de datos.', 'Exito' => 0);
         }
     }
 }

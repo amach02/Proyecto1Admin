@@ -1,57 +1,72 @@
 <?php
-class CajaModel
+class CajaModel 
 {
     private $db;
 
-    public function __construct()
+    public function __construct() 
     {
         require_once 'libs/SPDO.php';
         $this->db = SPDO::singleton();
     }
 
-    public function listarCajas($id_gaveta = 0)
+    public function listarCajas() 
     {
-        $consulta = $this->db->prepare('CALL sp_listar_cajas(?)');
-        $consulta->execute([$id_gaveta]);
+        // Llamamos al SP para listar
+        $consulta = $this->db->prepare('CALL sp_listar_cajas()');
+        $consulta->execute();
         $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
         $consulta->closeCursor();
         return $resultado;
     }
 
-    public function registrarCaja($codigo, $id_gaveta)
+    public function registrarCaja($codigo) 
     {
         try {
-            $consulta = $this->db->prepare('CALL sp_registrar_caja(?, ?)');
-            $consulta->execute([$codigo, $id_gaveta]);
+            // Llamamos al SP para registrar
+            $consulta = $this->db->prepare('CALL sp_registrar_caja(?)');
+            $consulta->execute(array($codigo));
             $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
             $consulta->closeCursor();
-            return $resultado;
+            return $resultado; // Retorna el array con 'Exito'
         } catch (PDOException $e) {
-            return ['Resultado' => 'Error de conexión a la base de datos.', 'Exito' => 0];
+            return array('Resultado' => 'Error de conexión', 'Exito' => 0);
         }
     }
 
-    public function buscarCajaPorId($id_caja) {
+    public function buscarCajaPorId($id) 
+    {
         $consulta = $this->db->prepare('CALL sp_buscarCajaPorId(?)');
-        $consulta->execute([$id_caja]);
+        $consulta->execute(array($id));
         $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
-        $consulta->closeCursor(); return $resultado;
+        $consulta->closeCursor();
+        return $resultado;
     }
 
-    public function editarCaja($id_caja, $codigo, $id_gaveta) {
+    public function editarCaja($id_caja, $codigo) 
+    {
         try {
-            $consulta = $this->db->prepare('CALL sp_editarCaja(?, ?, ?)');
-            return $consulta->execute([$id_caja, $codigo, $id_gaveta]);
-        } catch (PDOException $e) { return false; }
+            // Llamamos al SP para editar
+            $consulta = $this->db->prepare('CALL sp_editarCaja(?, ?)');
+            $resultado = $consulta->execute(array($id_caja, $codigo));
+            $consulta->closeCursor();
+            return $resultado;
+        } catch (PDOException $e) { 
+            return false; 
+        }
     }
 
-    public function inhabilitarCaja($id_caja) {
+    public function inhabilitarCaja($id) 
+    {
         try {
+            // Llamamos al SP para inhabilitar
             $consulta = $this->db->prepare('CALL sp_inhabilitarCaja(?)');
-            $consulta->execute([$id_caja]);
+            $consulta->execute(array($id));
             $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
-            $consulta->closeCursor(); return $resultado;
-        } catch (PDOException $e) { return ['Exito' => 0]; }
+            $consulta->closeCursor();
+            return $resultado; // Retorna el array con 'Exito'
+        } catch (PDOException $e) {
+            return array('Resultado' => 'Error', 'Exito' => 0);
+        }
     }
 }
 ?>

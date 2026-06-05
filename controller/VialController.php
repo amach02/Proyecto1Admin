@@ -16,17 +16,17 @@ class VialController
     public function mostrarListar()
     {
         $viales = $this->model->listarVialesDisponibles();
-        $this->view->show('listarVialesView.php', ['viales' => $viales]);
+        $this->view->show('listarVialesView.php', array('viales' => $viales));
     }
 
     public function mostrarRegistrar()
     {
         require_once 'model/CajaModel.php';
         $cajas = (new CajaModel())->listarCajas();
-        $this->view->show('registrarVialView.php', ['cajas' => $cajas]);
+        $this->view->show('registrarVialView.php', array('cajas' => $cajas));
     }
 
-public function registrar()
+    public function registrar()
     {
         $codigo  = trim($_POST['codigo']);
         $id_caja = trim($_POST['id_caja']);
@@ -45,8 +45,17 @@ public function registrar()
         }
     }
 
-    public function editar() {
-        $id = trim($_POST['id_vial']); $codigo = trim($_POST['codigo']); $id_caja = trim($_POST['id_caja']);
+    public function editar() 
+    {
+        $id      = trim($_POST['id_vial']); 
+        $codigo  = trim($_POST['codigo']); 
+        $id_caja = trim($_POST['id_caja']);
+        
+        if (empty($id) || empty($codigo) || empty($id_caja)) {
+            header("Location: ?controlador=Vial&accion=mostrarEditar&id=$id&status=invalido");
+            return;
+        }
+
         if ($this->model->editarVial($id, $codigo, $id_caja)) {
             header('Location: ?controlador=Infraestructura&accion=mostrar&tab=viales&status=editado_success');
         } else { 
@@ -54,9 +63,16 @@ public function registrar()
         }
     }
 
-    public function inhabilitar() {
+    public function inhabilitar() 
+    {
+        if (!isset($_GET['id'])) { 
+            header('Location: ?controlador=Index&accion=mostrar&status=error'); 
+            return; 
+        }
+
         $id = $_GET['id'];
         $respuesta = $this->model->inhabilitarVial($id);
+        
         if ($respuesta['Exito'] == 1) { 
             header('Location: ?controlador=Infraestructura&accion=mostrar&tab=viales&status=inhabilitado_success'); 
         } else { 
@@ -64,13 +80,21 @@ public function registrar()
         }
     }
 
-    public function mostrarEditar() {
-        if (!isset($_GET['id'])) { header('Location: ?controlador=Index&accion=mostrar&status=error'); return; }
+    public function mostrarEditar() 
+    {
+        if (!isset($_GET['id'])) { 
+            header('Location: ?controlador=Index&accion=mostrar&status=error'); 
+            return; 
+        }
+
         $datos = $this->model->buscarVialPorId($_GET['id']);
+        
         if ($datos) {
             require_once 'model/CajaModel.php';
             $cajas = (new CajaModel())->listarCajas();
-            $this->view->show('editarVialView.php', ['vial' => $datos, 'cajas' => $cajas]);
+            $this->view->show('editarVialView.php', array('vial' => $datos, 'cajas' => $cajas));
+        } else {
+            header('Location: ?controlador=Infraestructura&accion=mostrar&tab=viales&status=error');
         }
     }
 }
