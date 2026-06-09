@@ -39,6 +39,18 @@
             </li>
             <?php endif; ?>
 
+            <?php if (Auth::tienePermiso($rol, 'Planta', 'mostrarListar')): ?>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Plantas Hospedadoras</a>
+                <ul class="dropdown-menu dropdown-menu-dark">
+                    <li><a class="dropdown-item" href="?controlador=Planta&accion=mostrarListar">Listar</a></li>
+                    <?php if (Auth::tienePermiso($rol, 'Planta', 'mostrarRegistrar')): ?>
+                    <li><a class="dropdown-item" href="?controlador=Planta&accion=mostrarRegistrar">Registrar</a></li>
+                    <?php endif; ?>
+                </ul>
+            </li>
+            <?php endif; ?>
+
             <?php if (Auth::tienePermiso($rol, 'Taxonomia', 'mostrar')): ?>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Taxonomía</a>
@@ -57,7 +69,6 @@
                 <ul class="dropdown-menu dropdown-menu-dark">
                     <li><a class="dropdown-item" href="?controlador=Infraestructura&accion=mostrar&tab=gabinetes">Gabinetes</a></li>
                     <li><a class="dropdown-item" href="?controlador=Infraestructura&accion=mostrar&tab=cajas">Cajas</a></li>
-                    <li><a class="dropdown-item" href="?controlador=Infraestructura&accion=mostrar&tab=plantas">Plantas Hospedadoras</a></li>
                 </ul>
             </li>
             <?php endif; ?>
