@@ -20,18 +20,70 @@ class EspecimenModel
     }
 
     // Ejecutar el UPDATE
-    public function editarEspecimen($id, $codigo, $localizacion, $fecha, $estado, $id_especie, $id_vial)
+    public function editarEspecimen($id_especimen, $nombre_cientifico, $id_gaveta, $id_vial, $id_usuario_accion)
     {
         try {
-            $localizacion = empty($localizacion) ? null : $localizacion;
-            $fecha = empty($fecha) ? null : $fecha;
-            $id_especie = empty($id_especie) ? null : $id_especie;
+            $nombre_cientifico = empty($nombre_cientifico) ? null : $nombre_cientifico;
+            $id_gaveta = empty($id_gaveta) ? null : $id_gaveta;
             $id_vial = empty($id_vial) ? null : $id_vial;
 
-            $consulta = $this->db->prepare('CALL sp_editarEspecimen(?, ?, ?, ?, ?, ?, ?)');
-            $resultado = $consulta->execute([$id, $codigo, $localizacion, $fecha, $estado, $id_especie, $id_vial]);
+            $consulta = $this->db->prepare('CALL sp_editarEspecimen(?, ?, ?, ?, ?)');
+            $resultado = $consulta->execute([$id_especimen, $nombre_cientifico, $id_gaveta, $id_vial, $id_usuario_accion]);
             $consulta->closeCursor();
             return $resultado;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    // Ejecutar el INSERT (Adaptado a tus 5 parámetros)
+    public function registrarEspecimen(
+        $codigo_id,
+        $localizacion_recoleccion,
+        $fecha_recoleccion,
+        $estado,
+        $id_especie,
+        $id_gaveta,
+        $id_vial,
+        $id_usuario_accion
+    ) {
+        try {
+
+            $consulta = $this->db->prepare(
+                'CALL sp_registrar_especimen(?, ?, ?, ?, ?, ?, ?, ?)'
+            );
+
+            $consulta->execute([
+                $codigo_id,
+                $localizacion_recoleccion,
+                $fecha_recoleccion,
+                $estado,
+                $id_especie,
+                $id_gaveta,
+                $id_vial,
+                $id_usuario_accion
+            ]);
+
+            $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+
+            $consulta->closeCursor();
+
+            return $resultado;
+        } catch (PDOException $e) {
+
+            return [
+                'Resultado' => $e->getMessage(),
+                'Exito' => 0
+            ];
+        }
+    }
+
+    // Ejecutar INHABILITAR (Usa consulta directa para no tocar MySQL)
+    public function inhabilitarEspecimen($id_especimen)
+    {
+        try {
+            $consulta = $this->db->prepare("UPDATE tb_especimen SET estado = 'inactivo' WHERE id_especimen = ?");
+            return $consulta->execute([$id_especimen]);
         } catch (PDOException $e) {
             return false;
         }
@@ -64,35 +116,6 @@ class EspecimenModel
         return $resultado;
     }
 
-    public function registrarEspecimen($codigo_id, $localizacion, $fecha, $estado, $id_especie, $id_gaveta, $id_vial, $id_usuario)
-{
-    try {
-        $localizacion = empty($localizacion) ? null : $localizacion;
-        $fecha = empty($fecha) ? null : $fecha;
-        $id_especie = empty($id_especie) ? null : $id_especie;
-        
-        // NUEVO: Validación para la Gaveta (Ruta Seca)
-        $id_gaveta = empty($id_gaveta) ? null : $id_gaveta;
-        
-        // Mantenemos la validación para el Vial (Ruta Líquida)
-        $id_vial = empty($id_vial) ? null : $id_vial;
-
-        // NUEVO: Agregamos un signo de interrogación extra (?) porque ahora son 8 parámetros
-        $consulta = $this->db->prepare('CALL sp_registrar_especimen(?, ?, ?, ?, ?, ?, ?, ?)');
-        
-        // NUEVO: Incluimos $id_gaveta en el arreglo (asegúrate de que el orden coincida con tu SP)
-        $consulta->execute([$codigo_id, $localizacion, $fecha, $estado, $id_especie, $id_gaveta, $id_vial, $id_usuario]);
-        
-        $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
-        $consulta->closeCursor();
-        return $resultado;
-        
-    } catch (PDOException $e) {
-        // Tip: Si quieres ver el error real en desarrollo, puedes cambiar el mensaje temporalmente a $e->getMessage()
-        return ['Resultado' => 'Error de conexión a la base de datos.', 'Exito' => 0];
-    }
-}
-
     public function vincularPlanta($id_especimen, $id_planta, $id_usuario)
     {
         try {
@@ -106,4 +129,3 @@ class EspecimenModel
         }
     }
 }
-?>
