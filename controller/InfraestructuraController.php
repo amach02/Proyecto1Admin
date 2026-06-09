@@ -3,6 +3,7 @@ require_once 'model/GabineteModel.php';
 require_once 'model/GavetaModel.php';
 require_once 'model/CajaModel.php';
 require_once 'model/VialModel.php';
+require_once 'model/PlantaModel.php';
 
 class InfraestructuraController
 {
@@ -31,9 +32,12 @@ class InfraestructuraController
             $cajas[$key]['viales'] = $vialModel->listarPorCaja($caja['id_caja']) ?: array();
         }
 
+        $plantas = (new PlantaModel())->listarPlantas() ?: array();
+
         $this->view->show('infraestructuraView.php', array(
             'gabinetes' => $gabinetes,
-            'cajas'     => $cajas
+            'cajas'     => $cajas,
+            'plantas'   => $plantas
         ));
     }
     public function registrarGabinete()

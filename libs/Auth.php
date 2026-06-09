@@ -11,6 +11,7 @@ class Auth
             'Gaveta'          => '*',
             'Caja'            => '*',
             'Vial'            => '*',
+            'Planta'          => '*',
             'Inventario'      => '*',
             'Taxonomia'       => '*',
             'Orden'           => '*',
