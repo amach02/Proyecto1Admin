@@ -77,7 +77,13 @@ try {
 
             if (isset($_GET['id'])) {
                 $resultado = $model->buscarEspecimenPorId($_GET['id']);
+
                 if ($resultado !== false && !empty($resultado)) {
+                    // ¡NUEVO! Llamamos al modelo de tu compa y le pegamos las fotos al resultado
+                    require_once 'model/FotografiaModel.php';
+                    $modFoto = new FotografiaModel();
+                    $resultado['fotografias'] = $modFoto->listarFotosPorEspecimen($_GET['id']);
+
                     enviarRespuesta(200, "Espécimen obtenido exitosamente", $resultado);
                 } else {
                     enviarRespuesta(404, "Espécimen no encontrado");
