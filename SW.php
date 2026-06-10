@@ -75,6 +75,16 @@ try {
                 exit();
             }
 
+            if (isset($_GET['buscar'])) {
+                $criterio = trim($_GET['buscar']);
+                if (empty($criterio)) {
+                    enviarRespuesta(400, "El criterio de búsqueda no puede estar vacío.");
+                }
+                $resultado = $model->buscarEspecimenes($criterio);
+                enviarRespuesta(200, "Búsqueda completada", $resultado);
+                break;
+            }
+
             if (isset($_GET['id'])) {
                 $resultado = $model->buscarEspecimenPorId($_GET['id']);
 
