@@ -12,6 +12,7 @@ class Auth
             'Caja'            => '*',
             'Vial'            => '*',
             'Planta'          => '*',
+            'Fotografia'      => '*',
             'Inventario'      => '*',
             'Taxonomia'       => '*',
             'Orden'           => '*',
@@ -19,6 +20,7 @@ class Auth
             'Genero'          => '*',
             'Especie'         => '*',
             'Especimen'       => '*',
+            'eliminarFoto'     => '*',
             'Reporte'         => '*',
             'Index'           => '*',
             'Session'         => '*',
@@ -33,7 +35,13 @@ class Auth
                 'editar',
                 'buscarPorCodigo',
                 'rutaFisica',
-                'vincularPlanta'
+                'vincularPlanta',
+                'mostrarDetalle'    // ← ver el detalle con carrusel
+            ),
+            'Fotografia' => array(
+                'guardarFoto',      // ← puede subir
+                'eliminarFoto',     // ← puede eliminar
+                'listarFotos'
             ),
             'Taxonomia'  => array('mostrar'),
             'Orden'      => array(
@@ -70,7 +78,15 @@ class Auth
         ),
 
         'Estudiante' => array(
-            'Especimen'  => array('mostrarListar', 'buscarPorCodigo', 'rutaFisica'),
+            'Especimen'  => array(
+                'mostrarListar',
+                'buscarPorCodigo',
+                'rutaFisica',
+                'mostrarDetalle'    // ← ver el detalle con carrusel
+            ),
+            'Fotografia' => array(
+                'listarFotos'       // ← solo ver, no puede subir ni eliminar
+            ),
             'Taxonomia'  => array('mostrar'),
             'Inventario' => array('index', 'cargarGavetas', 'cargarCajas', 'cargarViales'),
             'Index'      => array('mostrar'),

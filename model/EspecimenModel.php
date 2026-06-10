@@ -20,17 +20,33 @@ class EspecimenModel
     }
 
     // Ejecutar el UPDATE
-    public function editarEspecimen($id_especimen, $nombre_cientifico, $id_gaveta, $id_vial, $id_usuario_accion)
+    public function editarEspecimen($id, $codigo, $localizacion, $fecha, $estado, $id_especie, $id_gaveta, $id_vial)
     {
         try {
-            $nombre_cientifico = empty($nombre_cientifico) ? null : $nombre_cientifico;
-            $id_gaveta = empty($id_gaveta) ? null : $id_gaveta;
-            $id_vial = empty($id_vial) ? null : $id_vial;
+            $id_usuario = isset($_SESSION['id_usuario']) ? $_SESSION['id_usuario'] : 0;
 
-            $consulta = $this->db->prepare('CALL sp_editarEspecimen(?, ?, ?, ?, ?)');
-            $resultado = $consulta->execute([$id_especimen, $nombre_cientifico, $id_gaveta, $id_vial, $id_usuario_accion]);
+            // fecha vacía → null
+            $fecha = !empty($fecha) ? $fecha : null;
+            // ids vacíos → null
+            $id_especie = !empty($id_especie) ? $id_especie : null;
+            $id_gaveta  = !empty($id_gaveta)  ? $id_gaveta  : null;
+            $id_vial    = !empty($id_vial)    ? $id_vial    : null;
+
+            $consulta = $this->db->prepare('CALL sp_editarEspecimen(?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            $consulta->execute([
+                $id,
+                $codigo,
+                $localizacion,
+                $fecha,
+                $estado,
+                $id_especie,
+                $id_gaveta,
+                $id_vial,
+                $id_usuario
+            ]);
+            $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
             $consulta->closeCursor();
-            return $resultado;
+            return isset($resultado['Exito']) && $resultado['Exito'] == 1;
         } catch (PDOException $e) {
             return false;
         }
