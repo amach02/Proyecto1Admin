@@ -32,7 +32,9 @@ class Auth
                 'editar',
                 'buscarPorCodigo',
                 'rutaFisica',
-                'vincularPlanta'
+                'vincularPlanta',
+                'cargarGavetas',
+'cargarViales'
             ),
             'Taxonomia'  => array('mostrar'),
             'Orden'      => array(

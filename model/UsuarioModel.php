@@ -20,11 +20,11 @@ class UsuarioModel
     }
 
     // Actualizar (Update)
-    public function editarUsuario($id_usuario, $nombre, $correo, $id_rol)
+    public function editarUsuario($id_usuario, $nombre, $correo, $id_rol,$id_usuario_accion)
     {
         try {
-            $consulta = $this->db->prepare('CALL sp_editarUsuario(?, ?, ?, ?)');
-            $resultado = $consulta->execute([$id_usuario, $nombre, $correo, $id_rol]);
+            $consulta = $this->db->prepare('CALL sp_editarUsuario(?, ?, ?, ?, ?)');
+            $resultado = $consulta->execute([$id_usuario, $nombre, $correo, $id_rol,$id_usuario_accion]);
             $consulta->closeCursor();
             return $resultado;
         } catch (PDOException $e) {
@@ -33,11 +33,11 @@ class UsuarioModel
     }
 
     // "Eliminar" de forma lógica
-    public function inhabilitarUsuario($id_usuario)
+    public function inhabilitarUsuario($id_usuario, $id_usuario_accion)
     {
         try {
-            $consulta = $this->db->prepare('CALL sp_inhabilitarUsuario(?)');
-            $resultado = $consulta->execute([$id_usuario]);
+            $consulta = $this->db->prepare('CALL sp_inhabilitarUsuario(?, ?)');
+            $resultado = $consulta->execute([$id_usuario, $id_usuario_accion]);
             $consulta->closeCursor();
             return $resultado;
         } catch (PDOException $e) {
@@ -54,11 +54,11 @@ class UsuarioModel
         return $resultado;
     }
 
-    public function registrarUsuario($nombre, $correo, $contrasena, $id_rol)
+    public function registrarUsuario($nombre, $correo, $contrasena, $id_rol, $id_usuario_accion)
     {
         try {
-            $consulta = $this->db->prepare('CALL sp_registrar_usuario(?, ?, ?, ?)');
-            $consulta->execute([$nombre, $correo, $contrasena, $id_rol]);
+            $consulta = $this->db->prepare('CALL sp_registrar_usuario(?, ?, ?, ?, ?)');
+            $consulta->execute([$nombre, $correo, $contrasena, $id_rol, $id_usuario_accion]);
             $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
             $consulta->closeCursor();
             return $resultado;

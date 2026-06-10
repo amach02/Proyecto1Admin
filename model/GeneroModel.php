@@ -1,4 +1,5 @@
 <?php
+
 class GeneroModel
 {
     private $db;
@@ -6,44 +7,132 @@ class GeneroModel
     public function __construct()
     {
         require_once 'libs/SPDO.php';
+
         $this->db = SPDO::singleton();
     }
 
     public function listarGeneros($id_familia = 0)
     {
-        $consulta = $this->db->prepare('CALL sp_listar_generos(?)');
-        $consulta->execute([$id_familia]);
-        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
-        $consulta->closeCursor();
-        return $resultado;
-    }
-
-    public function registrarGenero($nombre, $id_familia)
-    {
         try {
-            $consulta = $this->db->prepare('CALL sp_registrar_genero(?, ?)');
-            $consulta->execute([$nombre, $id_familia]);
-            $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+            $consulta = $this->db->prepare(
+                'CALL sp_listar_generos(?)'
+            );
+
+            $consulta->execute(
+                array($id_familia)
+            );
+
+            $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+
+            while ($consulta->nextRowset()) {
+            }
+
             $consulta->closeCursor();
+
             return $resultado;
+
         } catch (PDOException $e) {
-            return ['Resultado' => 'Error de conexión a la base de datos.', 'Exito' => 0];
+            return array();
         }
     }
 
-    public function buscarGeneroPorId($id_genero) {
-        $consulta = $this->db->prepare('CALL sp_buscarGeneroPorId(?)');
-        $consulta->execute([$id_genero]);
-        $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
-        $consulta->closeCursor();
-        return $resultado;
+    public function registrarGenero(
+        $nombre,
+        $id_familia,
+        $id_usuario_accion
+    ) {
+        try {
+            $consulta = $this->db->prepare(
+                'CALL sp_registrar_genero(?, ?, ?)'
+            );
+
+            $consulta->execute(
+                array(
+                    $nombre,
+                    $id_familia,
+                    $id_usuario_accion
+                )
+            );
+
+            $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+
+            while ($consulta->nextRowset()) {
+            }
+
+            $consulta->closeCursor();
+
+            return $resultado;
+
+        } catch (PDOException $e) {
+            return array(
+                'Resultado' => 'Error al registrar el género: '
+                    . $e->getMessage(),
+                'Exito' => 0
+            );
+        }
     }
 
-    public function editarGenero($id_genero, $nombre, $id_familia) {
+    public function buscarGeneroPorId($id_genero)
+    {
         try {
-            $consulta = $this->db->prepare('CALL sp_editarGenero(?, ?, ?)');
-            return $consulta->execute([$id_genero, $nombre, $id_familia]);
-        } catch (PDOException $e) { return false; }
+            $consulta = $this->db->prepare(
+                'CALL sp_buscarGeneroPorId(?)'
+            );
+
+            $consulta->execute(
+                array($id_genero)
+            );
+
+            $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+
+            while ($consulta->nextRowset()) {
+            }
+
+            $consulta->closeCursor();
+
+            return $resultado;
+
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public function editarGenero(
+        $id_genero,
+        $nombre,
+        $id_familia,
+        $id_usuario_accion
+    ) {
+        try {
+            $consulta = $this->db->prepare(
+                'CALL sp_editarGenero(?, ?, ?, ?)'
+            );
+
+            $consulta->execute(
+                array(
+                    $id_genero,
+                    $nombre,
+                    $id_familia,
+                    $id_usuario_accion
+                )
+            );
+
+            $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+
+            while ($consulta->nextRowset()) {
+            }
+
+            $consulta->closeCursor();
+
+            return $resultado;
+
+        } catch (PDOException $e) {
+            return array(
+                'Resultado' => 'Error al editar el género: '
+                    . $e->getMessage(),
+                'Exito' => 0
+            );
+        }
     }
 }
 ?>

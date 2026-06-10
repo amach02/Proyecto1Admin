@@ -45,7 +45,7 @@ class UsuarioController
             return;
         }
 
-        $resultado = $this->model->editarUsuario($id, $nombre, $correo, $id_rol);
+        $resultado = $this->model->editarUsuario($id, $nombre, $correo, $id_rol, $_SESSION['id_usuario']);
 
         if ($resultado) {
             header('Location: ?controlador=Index&accion=mostrar&status=editado_success');
@@ -63,7 +63,7 @@ class UsuarioController
         }
 
         $id = $_GET['id'];
-        $resultado = $this->model->inhabilitarUsuario($id);
+        $resultado = $this->model->inhabilitarUsuario($id, $_SESSION['id_usuario']);
 
         if ($resultado) {
             header('Location: ?controlador=Usuario&accion=mostrarListar&status=inhabilitado_success');
@@ -95,7 +95,7 @@ class UsuarioController
             return;
         }
 
-        $respuesta = $this->model->registrarUsuario($nombre, $correo, $contrasena, $id_rol);
+        $respuesta = $this->model->registrarUsuario($nombre, $correo, $contrasena, $id_rol, $_SESSION['id_usuario']);
 
         if ($respuesta['Exito'] == 1) {
             header('Location: ?controlador=Usuario&accion=mostrarListar&status=registrado_success');
@@ -149,7 +149,7 @@ class UsuarioController
         $_SESSION['id_usuario']  = $datos['id_usuario'];
         $_SESSION['nombre']      = $datos['nombre'];
         $_SESSION['nombre_rol']  = $datos['nombre_rol'];
-
+        $_SESSION['id_usuario_accion'] = $datos['id_usuario'];
         header('Location: ?controlador=Index&accion=mostrar');
     }
 }

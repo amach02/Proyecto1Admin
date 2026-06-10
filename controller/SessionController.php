@@ -59,7 +59,7 @@ class SessionController {
         $_SESSION['id_usuario'] = $datos['id_usuario'];
         $_SESSION['nombre']     = $datos['nombre'];
         $_SESSION['nombre_rol'] = $datos['nombre_rol'];
-
+        $_SESSION['id_usuario_accion'] = $datos['id_usuario']; // Para la Bitácora
         header('Location: ?controlador=Index&accion=mostrar');
         exit;
     }
@@ -89,7 +89,7 @@ public function recuperar() {
 
     require_once 'model/RecuperacionModel.php';
     $model     = new RecuperacionModel();
-    $resultado = $model->crearToken($correo);
+    $resultado = $model->crearToken($correo, $_SESSION['id_usuario'] ?? null);
 
     if (!$resultado || $resultado['Exito'] == 0) {
         header('Location: ?controlador=Session&accion=mostrarRecuperar&status=correo_no_encontrado');
@@ -146,7 +146,7 @@ public function cambiarContrasena() {
 
     require_once 'model/RecuperacionModel.php';
     $model     = new RecuperacionModel();
-    $resultado = $model->cambiarContrasena($token, $nueva);
+    $resultado = $model->cambiarContrasena($token, $nueva, $_SESSION['id_usuario'] ?? null);
 
     if ($resultado && $resultado['Exito'] == 1) {
         header('Location: ?controlador=Session&accion=mostrarLogin&status=contrasena_cambiada');
