@@ -70,8 +70,10 @@ include 'public/header.php';
                         <option value="">— Sin clasificar —</option>
                         <?php foreach ($especies as $esp): ?>
                             <option value="<?php echo $esp['id_especie']; ?>">
+                                <?php echo htmlspecialchars($esp['orden']); ?> &gt;
+                                <?php echo htmlspecialchars($esp['familia']); ?> &gt;
+                                <?php echo htmlspecialchars($esp['genero']); ?> &gt;
                                 <?php echo htmlspecialchars($esp['especie']); ?>
-                                (<?php echo htmlspecialchars($esp['genero']); ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>

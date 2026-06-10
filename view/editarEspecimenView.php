@@ -48,8 +48,10 @@
                         <?php foreach ($especies as $esp): ?>
                         <option value="<?php echo $esp['id_especie']; ?>"
                             <?php echo ($especimen['id_especie'] == $esp['id_especie']) ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($esp['orden']); ?> &gt;
+                            <?php echo htmlspecialchars($esp['familia']); ?> &gt;
+                            <?php echo htmlspecialchars($esp['genero']); ?> &gt;
                             <?php echo htmlspecialchars($esp['especie']); ?>
-                            (<?php echo htmlspecialchars($esp['genero']); ?>)
                         </option>
                         <?php endforeach; ?>
                     </select>

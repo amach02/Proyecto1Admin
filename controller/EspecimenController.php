@@ -88,17 +88,20 @@ class EspecimenController
         // 1. Llamamos a los modelos de Infraestructura
         require_once 'model/GavetaModel.php';
         require_once 'model/VialModel.php';
-        
+        require_once 'model/EspecieModel.php';
+
         // 2. Traemos las listas de los contenedores finales
-        $gavetas = (new GavetaModel())->listarGavetas();
-        $viales  = (new VialModel())->listarVialesDisponibles();
-        
+        $gavetas  = (new GavetaModel())->listarGavetas();
+        $viales   = (new VialModel())->listarVialesDisponibles();
+        $especies = (new EspecieModel())->listarEspecies();
+
         // 3. Enviamos estas variables a la vista del espécimen
         require_once 'libs/View.php';
         $view = new View();
         $view->show('registrarEspecimenView.php', array(
-            'gavetas' => $gavetas,
-            'viales'  => $viales
+            'gavetas'  => $gavetas,
+            'viales'   => $viales,
+            'especies' => $especies
         ));
     }
 
