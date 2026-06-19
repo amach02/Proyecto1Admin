@@ -144,4 +144,14 @@ class EspecimenModel
             return ['Resultado' => 'Error de conexión a la base de datos.', 'Exito' => 0];
         }
     }
+
+    public function buscarEspecimenes($criterio)
+    {
+        $stmt = $this->db->prepare("CALL sp_buscar_especimenes(:criterio)");
+        $stmt->bindParam(':criterio', $criterio, PDO::PARAM_STR);
+        $stmt->execute();
+        $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
+        return $resultado;
+    }
 }
