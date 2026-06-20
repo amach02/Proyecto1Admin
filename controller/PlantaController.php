@@ -26,15 +26,16 @@ class PlantaController
 
     public function registrar()
     {
-        $nombre     = trim($_POST['nombre']);
-        $id_usuario = $_SESSION['id_usuario'];
+        $nombre_cientifico = trim($_POST['nombre_cientifico']);
+        $nombre_comun      = trim($_POST['nombre_comun']);
+        $id_usuario        = $_SESSION['id_usuario'];
 
-        if (empty($nombre)) {
+        if (empty($nombre_cientifico)) {
             header('Location: ?controlador=Planta&accion=mostrarRegistrar&status=invalido');
             return;
         }
 
-        $respuesta = $this->model->registrarPlanta($nombre, $id_usuario);
+        $respuesta = $this->model->registrarPlanta($nombre_cientifico, $nombre_comun, $id_usuario);
 
         if ($respuesta['Exito'] == 1) {
             header('Location: ?controlador=Infraestructura&accion=mostrar&tab=plantas&status=registrada_success');
@@ -60,16 +61,17 @@ class PlantaController
 
     public function editar()
     {
-        $id         = (int)trim($_POST['id_planta']);
-        $nombre     = trim($_POST['nombre']);
-        $id_usuario = $_SESSION['id_usuario'];
+        $id                = (int)trim($_POST['id_planta']);
+        $nombre_cientifico = trim($_POST['nombre_cientifico']);
+        $nombre_comun      = trim($_POST['nombre_comun']);
+        $id_usuario        = $_SESSION['id_usuario'];
 
-        if (empty($nombre)) {
+        if (empty($nombre_cientifico)) {
             header("Location: ?controlador=Planta&accion=mostrarEditar&id=$id&status=invalido");
             return;
         }
 
-        $respuesta = $this->model->editarPlanta($id, $nombre, $id_usuario);
+        $respuesta = $this->model->editarPlanta($id, $nombre_cientifico, $nombre_comun, $id_usuario);
 
         if (isset($respuesta['Exito']) && $respuesta['Exito'] == 1) {
             header('Location: ?controlador=Infraestructura&accion=mostrar&tab=plantas&status=editada_success');
