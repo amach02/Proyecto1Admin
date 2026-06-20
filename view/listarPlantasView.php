@@ -1,6 +1,10 @@
 <?php
 /** @var array $plantas */
 include 'public/header.php';
+
+$plantas = array_filter($plantas, function ($p) {
+    return ($p['estado'] ?? 'activo') === 'activo';
+});
 ?>
 
 <div class="container mt-5">
