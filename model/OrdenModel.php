@@ -18,11 +18,11 @@ class OrdenModel
         return $resultado;
     }
 
-    public function registrarOrden($nombre)
+    public function registrarOrden($nombre, $id_usuario_accion)
     {
         try {
-            $consulta = $this->db->prepare('CALL sp_registrar_orden(?)');
-            $consulta->execute([$nombre]);
+            $consulta = $this->db->prepare('CALL sp_registrar_orden(?, ?)');
+            $consulta->execute([$nombre, $id_usuario_accion]);
             $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
             $consulta->closeCursor();
             return $resultado;
@@ -40,11 +40,11 @@ class OrdenModel
         return $resultado;
     }
 
-    public function editarOrden($id_orden, $nombre)
+    public function editarOrden($id_orden, $nombre, $id_usuario_accion)
     {
         try {
-            $consulta = $this->db->prepare('CALL sp_editarOrden(?, ?)');
-            return $consulta->execute([$id_orden, $nombre]);
+            $consulta = $this->db->prepare('CALL sp_editarOrden(?, ?, ?)');
+            return $consulta->execute([$id_orden, $nombre, $id_usuario_accion]);
         } catch (PDOException $e) {
             return false;
         }

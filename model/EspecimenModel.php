@@ -1,4 +1,5 @@
 <?php
+
 class EspecimenModel
 {
     private $db;
@@ -9,82 +10,24 @@ class EspecimenModel
         $this->db = SPDO::singleton();
     }
 
-    // Método para obtener los datos que se van a editar
     public function buscarEspecimenPorId($id_especimen)
     {
-        $consulta = $this->db->prepare('CALL sp_buscarEspecimenPorId(?)');
-        $consulta->execute([$id_especimen]);
-        $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
-        $consulta->closeCursor();
-        return $resultado;
-    }
-
-    // Ejecutar el UPDATE
-    public function editarEspecimen($id, $codigo, $localizacion, $fecha, $estado, $id_especie, $id_gaveta, $id_vial)
-    {
         try {
-            $id_usuario = isset($_SESSION['id_usuario']) ? $_SESSION['id_usuario'] : 0;
-
-            // fecha vacía → null
-            $fecha = !empty($fecha) ? $fecha : null;
-            // ids vacíos → null
-            $id_especie = !empty($id_especie) ? $id_especie : null;
-            $id_gaveta  = !empty($id_gaveta)  ? $id_gaveta  : null;
-            $id_vial    = !empty($id_vial)    ? $id_vial    : null;
-
-            $consulta = $this->db->prepare('CALL sp_editarEspecimen(?, ?, ?, ?, ?, ?, ?, ?, ?)');
-            $consulta->execute([
-                $id,
-                $codigo,
-                $localizacion,
-                $fecha,
-                $estado,
-                $id_especie,
-                $id_gaveta,
-                $id_vial,
-                $id_usuario
-            ]);
-            $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
-            $consulta->closeCursor();
-            return isset($resultado['Exito']) && $resultado['Exito'] == 1;
-        } catch (PDOException $e) {
-            return false;
-        }
-    }
-
-    // Ejecutar el INSERT (Adaptado a tus 5 parámetros)
-    public function registrarEspecimen(
-        $codigo_id,
-        $localizacion_recoleccion,
-        $fecha_recoleccion,
-        $estado,
-        $id_especie,
-        $id_gaveta,
-        $id_vial,
-        $id_usuario_accion
-    ) {
-        try {
-
             $consulta = $this->db->prepare(
-                'CALL sp_registrar_especimen(?, ?, ?, ?, ?, ?, ?, ?)'
+                'CALL sp_buscarEspecimenPorId(?)'
             );
 
-            $consulta->execute([
-                $codigo_id,
-                $localizacion_recoleccion,
-                $fecha_recoleccion,
-                $estado,
-                $id_especie,
-                $id_gaveta,
-                $id_vial,
-                $id_usuario_accion
-            ]);
+            $consulta->execute(array($id_especimen));
 
             $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+
+            while ($consulta->nextRowset()) {
+            }
 
             $consulta->closeCursor();
 
             return $resultado;
+
         } catch (PDOException $e) {
 
             return [
@@ -105,53 +48,279 @@ class EspecimenModel
         }
     }
 
+    /*
+     * Orden utilizado:
+     * id, código, localización, fecha, estado, especie,
+     * gaveta, vial y usuario.
+     *
+     * sp_editarEspecimen debe recibir los parámetros
+     * exactamente en este mismo orden.
+     */
+    public function editarEspecimen(
+        $id,
+        $codigo,
+        $localizacion,
+        $fecha,
+        $estado,
+        $id_especie,
+        $id_gaveta,
+        $id_vial,
+        $id_usuario_accion
+    ) {
+        try {
+            $localizacion = empty($localizacion)
+                ? null
+                : $localizacion;
+
+            $fecha = empty($fecha)
+                ? null
+                : $fecha;
+
+            $id_especie = empty($id_especie)
+                ? null
+                : $id_especie;
+
+            $id_gaveta = empty($id_gaveta)
+                ? null
+                : $id_gaveta;
+
+            $id_vial = empty($id_vial)
+                ? null
+                : $id_vial;
+
+            $consulta = $this->db->prepare(
+                'CALL sp_editarEspecimen(
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?
+                )'
+            );
+
+            $consulta->execute(
+                array(
+                    $id,
+                    $codigo,
+                    $localizacion,
+                    $fecha,
+                    $estado,
+                    $id_especie,
+                    $id_gaveta,
+                    $id_vial,
+                    $id_usuario_accion
+                )
+            );
+
+            /*
+             * Si el procedimiento devuelve Exito y Resultado,
+             * se recuperan aquí.
+             */
+            $respuesta = $consulta->fetch(PDO::FETCH_ASSOC);
+
+            while ($consulta->nextRowset()) {
+            }
+
+            $consulta->closeCursor();
+
+            /*
+             * Si el procedimiento no devuelve un SELECT,
+             * se devuelve true para mantener compatibilidad.
+             */
+            if ($respuesta === false) {
+                return true;
+            }
+
+            return $respuesta;
+
+        } catch (PDOException $e) {
+            return array(
+                'Resultado' => 'Error al editar el espécimen: '
+                    . $e->getMessage(),
+                'Exito' => 0
+            );
+        }
+    }
+
     public function listarEspecimenes()
     {
-        $consulta = $this->db->prepare('CALL sp_listar_especimenes()');
-        $consulta->execute();
-        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
-        $consulta->closeCursor();
-        return $resultado;
+        try {
+            $consulta = $this->db->prepare(
+                'CALL sp_listar_especimenes()'
+            );
+
+            $consulta->execute();
+
+            $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+
+            while ($consulta->nextRowset()) {
+            }
+
+            $consulta->closeCursor();
+
+            return $resultado;
+
+        } catch (PDOException $e) {
+            return array();
+        }
     }
 
     public function buscarEspecimenPorCodigo($codigo_id)
     {
-        $consulta = $this->db->prepare('CALL sp_buscarEspecimenPorCodigo(?)');
-        $consulta->execute([$codigo_id]);
-        $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
-        $consulta->closeCursor();
-        return $resultado;
+        try {
+            $consulta = $this->db->prepare(
+                'CALL sp_buscarEspecimenPorCodigo(?)'
+            );
+
+            $consulta->execute(array($codigo_id));
+
+            $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+
+            while ($consulta->nextRowset()) {
+            }
+
+            $consulta->closeCursor();
+
+            return $resultado;
+
+        } catch (PDOException $e) {
+            return false;
+        }
     }
 
     public function consultarRutaFisica($id_especimen)
     {
-        $consulta = $this->db->prepare('CALL sp_consultar_ruta_fisica(?)');
-        $consulta->execute([$id_especimen]);
-        $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
-        $consulta->closeCursor();
-        return $resultado;
-    }
-
-    public function vincularPlanta($id_especimen, $id_planta, $id_usuario)
-    {
         try {
-            $consulta = $this->db->prepare('CALL sp_vincular_planta(?, ?, ?)');
-            $consulta->execute([$id_especimen, $id_planta, $id_usuario]);
+            $consulta = $this->db->prepare(
+                'CALL sp_consultar_ruta_fisica(?)'
+            );
+
+            $consulta->execute(array($id_especimen));
+
             $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+
+            while ($consulta->nextRowset()) {
+            }
+
             $consulta->closeCursor();
+
             return $resultado;
+
         } catch (PDOException $e) {
-            return ['Resultado' => 'Error de conexión a la base de datos.', 'Exito' => 0];
+            return false;
         }
     }
 
-    public function buscarEspecimenes($criterio)
-    {
-        $stmt = $this->db->prepare("CALL sp_buscar_especimenes(:criterio)");
-        $stmt->bindParam(':criterio', $criterio, PDO::PARAM_STR);
-        $stmt->execute();
-        $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $stmt->closeCursor();
-        return $resultado;
+    /*
+     * Orden utilizado:
+     * código, localización, fecha, estado, especie,
+     * vial, gaveta y usuario.
+     *
+     * Este orden coincide con el controlador corregido
+     * y debe coincidir con sp_registrar_especimen.
+     */
+    public function registrarEspecimen(
+        $codigo_id,
+        $localizacion,
+        $fecha,
+        $estado,
+        $id_especie,
+        $id_vial,
+        $id_gaveta,
+        $id_usuario_accion
+    ) {
+        try {
+            $localizacion = empty($localizacion)
+                ? null
+                : $localizacion;
+
+            $fecha = empty($fecha)
+                ? null
+                : $fecha;
+
+            $id_especie = empty($id_especie)
+                ? null
+                : $id_especie;
+
+            $id_vial = empty($id_vial)
+                ? null
+                : $id_vial;
+
+            $id_gaveta = empty($id_gaveta)
+                ? null
+                : $id_gaveta;
+
+            $consulta = $this->db->prepare(
+                'CALL sp_registrar_especimen(
+                    ?, ?, ?, ?, ?, ?, ?, ?
+                )'
+            );
+
+            /*
+             * CORRECCIÓN:
+             * antes se enviaba gaveta y luego vial.
+             * Ahora se envía vial y luego gaveta.
+             */
+            $consulta->execute(
+                array(
+                    $codigo_id,
+                    $localizacion,
+                    $fecha,
+                    $estado,
+                    $id_especie,
+                    $id_vial,
+                    $id_gaveta,
+                    $id_usuario_accion
+                )
+            );
+
+            $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+
+            while ($consulta->nextRowset()) {
+            }
+
+            $consulta->closeCursor();
+
+            return $resultado;
+
+        } catch (PDOException $e) {
+            return array(
+                'Resultado' => 'Error al registrar el espécimen: '
+                    . $e->getMessage(),
+                'Exito' => 0
+            );
+        }
+    }
+
+    public function vincularPlanta(
+        $id_especimen,
+        $id_planta,
+        $id_usuario_accion
+    ) {
+        try {
+            $consulta = $this->db->prepare(
+                'CALL sp_vincular_planta(?, ?, ?)'
+            );
+
+            $consulta->execute(
+                array(
+                    $id_especimen,
+                    $id_planta,
+                    $id_usuario_accion
+                )
+            );
+
+            $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+
+            while ($consulta->nextRowset()) {
+            }
+
+            $consulta->closeCursor();
+
+            return $resultado;
+
+        } catch (PDOException $e) {
+            return array(
+                'Resultado' => 'Error al vincular la planta: '
+                    . $e->getMessage(),
+                'Exito' => 0
+            );
+        }
     }
 }

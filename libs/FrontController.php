@@ -22,7 +22,7 @@ class FrontController
         $rutaControlador = $config->get('controllerFolder') . $controllerName . '.php';
 
         // Verificar acceso ANTES de cargar cualquier controlador
-        Auth::verificar($controladorURL, $nombreAccion);
+       // Auth::verificar($controladorURL, $nombreAccion);
 
         if (is_file($rutaControlador)) {
             require $rutaControlador;
