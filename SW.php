@@ -1,5 +1,4 @@
 <?php
-
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
@@ -17,8 +16,8 @@ require_once 'model/EspecimenModel.php';
 require_once 'model/EspecieModel.php';
 require_once 'model/GavetaModel.php';
 require_once 'model/VialModel.php';
-// Agregamos el modelo de comentarios
 require_once 'model/ComentarioModel.php';
+require_once 'model/PlantaModel.php'; // NUEVO: Importamos el modelo de plantas
 
 function enviarRespuesta($codigoHttp, $mensaje, $datos = null)
 {
@@ -49,6 +48,19 @@ try {
 
     switch ($metodo) {
         case 'GET':
+            // NUEVO: Endpoints para Plantas (HU14)
+            if (isset($_GET['accion'])) {
+                $modPlanta = new PlantaModel();
+                
+                if ($_GET['accion'] === 'listar_plantas') {
+                    enviarRespuesta(200, "Catálogo obtenido", $modPlanta->listarPlantas());
+                }
+                
+                if ($_GET['accion'] === 'plantas_vinculadas' && isset($_GET['id_especimen'])) {
+                    enviarRespuesta(200, "Plantas vinculadas", $modPlanta->listarPlantasPorEspecimen($_GET['id_especimen']));
+                }
+            }
+
             if (isset($_GET['catalogo'])) {
                 switch ($_GET['catalogo']) {
                     case 'especies':
@@ -87,13 +99,10 @@ try {
 
             if (isset($_GET['id'])) {
                 $resultado = $model->buscarEspecimenPorId($_GET['id']);
-
                 if ($resultado !== false && !empty($resultado)) {
-                    // ¡NUEVO! Llamamos al modelo de tu compa y le pegamos las fotos al resultado
                     require_once 'model/FotografiaModel.php';
                     $modFoto = new FotografiaModel();
                     $resultado['fotografias'] = $modFoto->listarFotosPorEspecimen($_GET['id']);
-
                     enviarRespuesta(200, "Espécimen obtenido exitosamente", $resultado);
                 } else {
                     enviarRespuesta(404, "Espécimen no encontrado");
@@ -110,6 +119,27 @@ try {
             break;
 
         case 'POST':
+            // Verificamos si la petición viene de un formulario (x-www-form-urlencoded) o si es JSON crudo
+            // Para poder manejar los $_GET y peticiones con Query Params
+            
+            // NUEVO: Endpoint para Vincular Planta (HU14)
+            if (isset($_GET['accion']) && $_GET['accion'] === 'vincular_planta') {
+                $datos = json_decode(file_get_contents("php://input"), true);
+                $modPlanta = new PlantaModel();
+                
+                $id_esp = $datos['id_especimen'];
+                $id_pl = $datos['id_planta'];
+                $id_usu = isset($datos['id_usuario']) ? $datos['id_usuario'] : 1;
+                
+                $res = $modPlanta->vincularPlanta($id_esp, $id_pl, $id_usu);
+                if ($res && isset($res['Exito']) && $res['Exito'] == 1) {
+                    enviarRespuesta(201, "Planta vinculada correctamente", $res);
+                } else {
+                    $errorMsg = isset($res['Resultado']) ? $res['Resultado'] : 'Desconocido';
+                    enviarRespuesta(500, "Error al vincular: " . $errorMsg);
+                }
+            }
+
             $datos = json_decode(file_get_contents("php://input"), true);
 
             // 1. Lógica de Login
@@ -117,7 +147,6 @@ try {
                 require_once 'model/UsuarioModel.php';
                 $modUsuario = new UsuarioModel();
 
-                // Forma tradicional compatible con PHP antiguo (sin los ??)
                 $correo = isset($datos['correo']) ? $datos['correo'] : '';
                 $contrasena = isset($datos['contrasena']) ? $datos['contrasena'] : '';
 
@@ -148,9 +177,7 @@ try {
             // 2. Lógica para Registrar Comentarios
             if (isset($datos['comentario']) && isset($datos['id_especimen'])) {
                 $modComentario = new ComentarioModel();
-
                 $id_usuario = isset($datos['id_usuario']) ? $datos['id_usuario'] : 1;
-
                 $res = $modComentario->registrarComentario(
                     $datos['id_especimen'],
                     $id_usuario,
@@ -216,6 +243,20 @@ try {
             break;
 
         case 'DELETE':
+            // NUEVO: Endpoint para Desvincular Planta (HU14)
+            if (isset($_GET['accion']) && $_GET['accion'] === 'desvincular_planta') {
+                $datos = json_decode(file_get_contents("php://input"), true);
+                $modPlanta = new PlantaModel();
+                
+                $res = $modPlanta->desvincularPlanta($datos['id_especimen'], $datos['id_planta']);
+                if ($res) {
+                    enviarRespuesta(200, "Planta desvinculada correctamente");
+                } else {
+                    enviarRespuesta(500, "Error interno al intentar desvincular");
+                }
+            }
+
+            // Lógica original de inhabilitar espécimen
             $id = isset($_GET['id']) ? $_GET['id'] : null;
             if (!$id) {
                 $datos = json_decode(file_get_contents("php://input"), true);
@@ -240,6 +281,6 @@ try {
             enviarRespuesta(405, "Método no permitido");
             break;
     }
-} catch (Exception $e) { // Cambiado a Exception clásico para ser 100% compatible
+} catch (Exception $e) {
     enviarRespuesta(500, "Error crítico: " . $e->getMessage());
 }
