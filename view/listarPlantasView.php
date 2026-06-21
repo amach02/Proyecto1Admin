@@ -1,6 +1,7 @@
 <?php 
 /** @var array $plantas */
-include 'public/header.php'; 
+include 'public/header.php';
+
 ?>
 <div class="container mt-5">
     <div class="card shadow p-4">

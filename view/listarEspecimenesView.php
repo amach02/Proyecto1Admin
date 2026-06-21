@@ -73,8 +73,6 @@ $sin_resultados = isset($sin_resultados)       ? $sin_resultados        : false;
                                     class="btn btn-primary btn-sm">Ver</a>
                                 <a href="?controlador=Especimen&accion=mostrarEditar&id=<?php echo $e['id_especimen']; ?>"
                                     class="btn btn-warning btn-sm">Editar</a>
-                                <a href="?controlador=Especimen&accion=rutaFisica&id=<?php echo $e['id_especimen']; ?>"
-                                    class="btn btn-info btn-sm">Ruta</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
