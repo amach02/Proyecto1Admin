@@ -21,7 +21,7 @@ $status = isset($_GET['status']) ? $_GET['status'] : '';
             </div>
             <div class="mb-3">
                 <label class="form-label fw-bold">Nombre Común (Opcional)</label>
-                <input type="text" name="nombre_comun" class="form-control" value="<?php echo htmlspecialchars($planta['nombre_comun'] ?? ''); ?>">
+                <input type="text" name="nombre_comun" class="form-control" value="<?php echo htmlspecialchars(isset($planta['nombre_comun']) ? $planta['nombre_comun'] : '-'); ?>">
             </div>
             <div class="d-flex justify-content-between mt-4">
                 <div class="d-flex gap-2">

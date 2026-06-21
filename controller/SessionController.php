@@ -1,21 +1,18 @@
 <?php
 require_once 'model/UsuarioModel.php';
 
-class SessionController
-{
+class SessionController {
 
     private $view;
     private $model;
 
-    public function __construct()
-    {
+    public function __construct() {
         require_once 'libs/View.php';
         $this->view  = new View();
         $this->model = new UsuarioModel();
     }
 
-    public function mostrarLogin()
-    {
+    public function mostrarLogin() {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
@@ -29,13 +26,12 @@ class SessionController
         $this->view->show('loginView.php', array('status' => $status));
     }
 
-    public function login()
-    {
+    public function login() {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
 
-        $correo     = isset($_POST['correo'])     ? trim($_POST['correo'])     : '';
+        $correo     = isset($_POST['correo']) ? trim($_POST['correo']) : '';
         $contrasena = isset($_POST['contrasena']) ? trim($_POST['contrasena']) : '';
 
         if (empty($correo) || empty($contrasena)) {
@@ -63,13 +59,13 @@ class SessionController
         $_SESSION['id_usuario'] = $datos['id_usuario'];
         $_SESSION['nombre']     = $datos['nombre'];
         $_SESSION['nombre_rol'] = $datos['nombre_rol'];
+        $_SESSION['id_usuario_accion'] = $datos['id_usuario'];
 
         header('Location: ?controlador=Index&accion=mostrar');
         exit;
     }
 
-    public function logout()
-    {
+    public function logout() {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
@@ -79,14 +75,16 @@ class SessionController
         exit;
     }
 
-    public function mostrarRecuperar()
-    {
+    public function mostrarRecuperar() {
         $status = isset($_GET['status']) ? $_GET['status'] : '';
         $this->view->show('recuperarView.php', array('status' => $status));
     }
 
-    public function recuperar()
-    {
+    public function recuperar() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         $correo = isset($_POST['correo']) ? trim($_POST['correo']) : '';
 
         if (empty($correo)) {
@@ -95,8 +93,11 @@ class SessionController
         }
 
         require_once 'model/RecuperacionModel.php';
-        $model     = new RecuperacionModel();
-        $resultado = $model->crearToken($correo);
+        $model = new RecuperacionModel();
+
+        $idUsuario = isset($_SESSION['id_usuario']) ? $_SESSION['id_usuario'] : null;
+
+        $resultado = $model->crearToken($correo, $idUsuario);
 
         if (!$resultado || $resultado['Exito'] == 0) {
             header('Location: ?controlador=Session&accion=mostrarRecuperar&status=correo_no_encontrado');
@@ -105,40 +106,12 @@ class SessionController
 
         $token = $resultado['Resultado'];
 
-        // URL del sistema — ajustá el dominio si es necesario
-        $url = 'http://localhost/Proyecto1Admin/?controlador=Session&accion=mostrarNuevaContrasena&token=' . $token;
-
-        $cuerpo = '
-    <div style="font-family:Arial,sans-serif; max-width:500px; margin:auto;">
-        <h2 style="color:#198754;">Recuperación de contraseña</h2>
-        <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta.</p>
-        <p>Hacé clic en el botón para continuar. El enlace expira en <strong>1 hora</strong>.</p>
-        <p style="text-align:center; margin:30px 0;">
-            <a href="' . $url . '"
-               style="background:#198754; color:#fff; padding:12px 28px;
-                      text-decoration:none; border-radius:6px; font-size:16px;">
-                Restablecer contraseña
-            </a>
-        </p>
-        <p style="color:#888; font-size:13px;">
-            Si no solicitaste esto, ignorá este correo.
-        </p>
-    </div>';
-
-        require_once 'libs/Mailer.php';
-        $enviado = Mailer::enviar($correo, $correo, 'Recuperación de contraseña — UCR Entomología', $cuerpo);
-
-        if ($enviado) {
-            header('Location: ?controlador=Session&accion=mostrarRecuperar&status=correo_enviado');
-        } else {
-            header('Location: ?controlador=Session&accion=mostrarRecuperar&status=error_envio');
-        }
+        header('Location: ?controlador=Session&accion=mostrarNuevaContrasena&token=' . $token);
         exit;
     }
 
-    public function mostrarNuevaContrasena()
-    {
-        $token  = isset($_GET['token'])  ? $_GET['token']  : '';
+    public function mostrarNuevaContrasena() {
+        $token  = isset($_GET['token']) ? $_GET['token'] : '';
         $status = isset($_GET['status']) ? $_GET['status'] : '';
 
         if (empty($token)) {
@@ -147,7 +120,8 @@ class SessionController
         }
 
         require_once 'model/RecuperacionModel.php';
-        $model     = new RecuperacionModel();
+        $model = new RecuperacionModel();
+
         $resultado = $model->validarToken($token);
 
         if (!$resultado || $resultado['Exito'] == 0) {
@@ -155,13 +129,19 @@ class SessionController
             exit;
         }
 
-        $this->view->show('nuevaContrasenaView.php', array('token' => $token, 'status' => $status));
+        $this->view->show('nuevaContrasenaView.php', array(
+            'token' => $token,
+            'status' => $status
+        ));
     }
 
-    public function cambiarContrasena()
-    {
-        $token    = isset($_POST['token'])    ? trim($_POST['token'])    : '';
-        $nueva    = isset($_POST['nueva'])    ? trim($_POST['nueva'])    : '';
+    public function cambiarContrasena() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $token    = isset($_POST['token']) ? trim($_POST['token']) : '';
+        $nueva    = isset($_POST['nueva']) ? trim($_POST['nueva']) : '';
         $confirma = isset($_POST['confirma']) ? trim($_POST['confirma']) : '';
 
         if (empty($token) || empty($nueva) || empty($confirma)) {
@@ -180,8 +160,11 @@ class SessionController
         }
 
         require_once 'model/RecuperacionModel.php';
-        $model     = new RecuperacionModel();
-        $resultado = $model->cambiarContrasena($token, $nueva);
+        $model = new RecuperacionModel();
+
+        $idUsuario = isset($_SESSION['id_usuario']) ? $_SESSION['id_usuario'] : null;
+
+        $resultado = $model->cambiarContrasena($token, $nueva, $idUsuario);
 
         if ($resultado && $resultado['Exito'] == 1) {
             header('Location: ?controlador=Session&accion=mostrarLogin&status=contrasena_cambiada');
@@ -192,3 +175,4 @@ class SessionController
         }
     }
 }
+?>

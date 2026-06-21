@@ -1,6 +1,7 @@
 <?php 
 /** @var array $plantas */
-include 'public/header.php'; 
+include 'public/header.php';
+
 ?>
 <div class="container mt-5">
     <div class="card shadow p-4">
@@ -24,7 +25,7 @@ include 'public/header.php';
                             <tr>
                                 <td class="text-muted"><?php echo htmlspecialchars($p['id_planta']); ?></td>
                                 <td><strong><?php echo htmlspecialchars($p['nombre_cientifico']); ?></strong></td>
-                                <td><?php echo htmlspecialchars($p['nombre_comun'] ?? '-'); ?></td>
+                                <td><?php echo htmlspecialchars(isset($p['nombre_comun']) ? $p['nombre_comun'] : '-'); ?></td>
                                 <td class="text-end">
                                     <a href="?controlador=Planta&accion=mostrarEditar&id=<?php echo $p['id_planta']; ?>" class="btn btn-warning btn-sm text-dark fw-bold">Editar</a>
                                 </td>

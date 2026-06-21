@@ -1,66 +1,193 @@
 <?php
+
 require_once 'libs/SPDO.php';
 
-class InventarioModel {
+class InventarioModel
+{
     private $db;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->db = SPDO::singleton();
     }
 
-    // Carga inicial de gabinetes activos
-    public function obtenerGabinetes() {
-        $stmt = $this->db->prepare("SELECT id_gabinete, codigo, descripcion FROM tb_gabinete WHERE estado = 'activo'");
-        $stmt->execute();
-        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $stmt->closeCursor();
-        return $resultados;
+    public function obtenerGabinetes()
+    {
+        try {
+            $sql = "SELECT
+                        id_gabinete,
+                        codigo,
+                        descripcion
+                    FROM tb_gabinete
+                    WHERE estado = 'activo'
+                    ORDER BY codigo";
+
+            $consulta = $this->db->prepare($sql);
+            $consulta->execute();
+
+            $resultado = $consulta->fetchAll(
+                PDO::FETCH_ASSOC
+            );
+
+            $consulta->closeCursor();
+
+            return $resultado;
+
+        } catch (PDOException $e) {
+            return array();
+        }
     }
 
-    // Carga dependiente de gavetas por gabinete
-    public function obtenerGavetasPorGabinete($id_gabinete) {
-        $stmt = $this->db->prepare("SELECT id_gaveta, codigo FROM tb_gaveta WHERE id_gabinete = :id");
-        $stmt->execute(array(':id' => $id_gabinete));
-        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $stmt->closeCursor();
-        return $resultados;
+    public function obtenerGavetasPorGabinete($id_gabinete)
+    {
+        try {
+            $sql = "SELECT
+                        id_gaveta,
+                        codigo
+                    FROM tb_gaveta
+                    WHERE id_gabinete = :id_gabinete
+                      AND estado = 'activo'
+                    ORDER BY codigo";
+
+            $consulta = $this->db->prepare($sql);
+
+            $consulta->execute(
+                array(
+                    ':id_gabinete' => $id_gabinete
+                )
+            );
+
+            $resultado = $consulta->fetchAll(
+                PDO::FETCH_ASSOC
+            );
+
+            $consulta->closeCursor();
+
+            return $resultado;
+
+        } catch (PDOException $e) {
+            return array();
+        }
     }
 
-    // Carga dependiente de cajas por gaveta
-    public function obtenerCajasPorGaveta($id_gaveta) {
-        $stmt = $this->db->prepare("SELECT id_caja, codigo FROM tb_caja WHERE id_gaveta = :id");
-        $stmt->execute(array(':id' => $id_gaveta));
-        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $stmt->closeCursor();
-        return $resultados;
+    public function obtenerCajas()
+    {
+        try {
+            $sql = "SELECT
+                        id_caja,
+                        codigo
+                    FROM tb_caja
+                    WHERE estado = 'activo'
+                    ORDER BY codigo";
+
+            $consulta = $this->db->prepare($sql);
+            $consulta->execute();
+
+            $resultado = $consulta->fetchAll(
+                PDO::FETCH_ASSOC
+            );
+
+            $consulta->closeCursor();
+
+            return $resultado;
+
+        } catch (PDOException $e) {
+            return array();
+        }
     }
 
-    // Carga dependiente de viales por caja
-    public function obtenerVialesPorCaja($id_caja) {
-        $stmt = $this->db->prepare("SELECT id_vial, codigo FROM tb_vial WHERE id_caja = :id");
-        $stmt->execute(array(':id' => $id_caja));
-        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $stmt->closeCursor();
-        return $resultados;
+    public function obtenerVialesPorCaja($id_caja)
+    {
+        try {
+            $sql = "SELECT
+                        id_vial,
+                        codigo
+                    FROM tb_vial
+                    WHERE id_caja = :id_caja
+                      AND estado = 'activo'
+                    ORDER BY codigo";
+
+            $consulta = $this->db->prepare($sql);
+
+            $consulta->execute(
+                array(
+                    ':id_caja' => $id_caja
+                )
+            );
+
+            $resultado = $consulta->fetchAll(
+                PDO::FETCH_ASSOC
+            );
+
+            $consulta->closeCursor();
+
+            return $resultado;
+
+        } catch (PDOException $e) {
+            return array();
+        }
     }
 
-    // Ejecuta tu procedimiento almacenado sp_registrar_especimen
-    public function registrarEspecimenInfrastructura($codigo_id, $localizacion, $fecha, $estado, $id_especie, $id_vial, $id_usuario) {
-        $stmt = $this->db->prepare("CALL sp_registrar_especimen(:codigo, :localizacion, :fecha, :estado, :especie, :vial, :usuario)");
-        
-        $stmt->execute(array(
-            ':codigo'       => $codigo_id,
-            ':localizacion' => $localizacion,
-            ':fecha'        => $fecha,
-            ':estado'       => $estado,
-            ':especie'      => $id_especie,
-            ':vial'         => $id_vial,
-            ':usuario'      => $id_usuario
-        ));
-        
-        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-        $stmt->closeCursor();
-        return $resultado;
+    public function registrarEspecimenInfraestructura(
+        $codigo_id,
+        $localizacion,
+        $fecha,
+        $estado,
+        $id_especie,
+        $id_vial,
+        $id_gaveta,
+        $id_usuario_accion
+    ) {
+        try {
+            /*
+             * Orden del SP:
+             *
+             * 1. código
+             * 2. localización
+             * 3. fecha
+             * 4. estado
+             * 5. especie
+             * 6. vial
+             * 7. gaveta
+             * 8. usuario
+             */
+            $consulta = $this->db->prepare(
+                'CALL sp_registrar_especimen(
+                    ?, ?, ?, ?, ?, ?, ?, ?
+                )'
+            );
+
+            $consulta->execute(
+                array(
+                    $codigo_id,
+                    $localizacion,
+                    $fecha,
+                    $estado,
+                    $id_especie,
+                    $id_vial,
+                    $id_gaveta,
+                    $id_usuario_accion
+                )
+            );
+
+            $resultado = $consulta->fetch(
+                PDO::FETCH_ASSOC
+            );
+
+            while ($consulta->nextRowset()) {
+            }
+
+            $consulta->closeCursor();
+
+            return $resultado;
+
+        } catch (PDOException $e) {
+            return array(
+                'Resultado' => 'Error al registrar el espécimen: '
+                    . $e->getMessage(),
+                'Exito' => 0
+            );
+        }
     }
 }
 ?>

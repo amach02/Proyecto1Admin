@@ -35,7 +35,7 @@ class TaxonomiaController
             header('Location: ?controlador=Taxonomia&accion=mostrar&tab=ordenes&status=invalido');
             return;
         }
-        $r = (new OrdenModel())->registrarOrden($nombre);
+        $r = (new OrdenModel())->registrarOrden($nombre, $_SESSION['id_usuario_accion']);
         $destino = $r['Exito'] == 1 ? 'registrado_success' : 'error';
         header("Location: ?controlador=Taxonomia&accion=mostrar&tab=ordenes&status=$destino");
     }
@@ -48,7 +48,7 @@ class TaxonomiaController
             header('Location: ?controlador=Taxonomia&accion=mostrar&tab=familias&status=invalido');
             return;
         }
-        $r = (new FamiliaModel())->registrarFamilia($nombre, $id_orden);
+        $r = (new FamiliaModel())->registrarFamilia($nombre, $id_orden, $_SESSION['id_usuario_accion']);
         $destino = $r['Exito'] == 1 ? 'registrado_success' : 'error';
         header("Location: ?controlador=Taxonomia&accion=mostrar&tab=familias&status=$destino");
     }
@@ -61,7 +61,7 @@ class TaxonomiaController
             header('Location: ?controlador=Taxonomia&accion=mostrar&tab=generos&status=invalido');
             return;
         }
-        $r = (new GeneroModel())->registrarGenero($nombre, $id_familia);
+        $r = (new GeneroModel())->registrarGenero($nombre, $id_familia, $_SESSION['id_usuario_accion']);
         $destino = $r['Exito'] == 1 ? 'registrado_success' : 'error';
         header("Location: ?controlador=Taxonomia&accion=mostrar&tab=generos&status=$destino");
     }
@@ -74,7 +74,7 @@ class TaxonomiaController
             header('Location: ?controlador=Taxonomia&accion=mostrar&tab=especies&status=invalido');
             return;
         }
-        $r = (new EspecieModel())->registrarEspecie($nombre, $id_genero);
+        $r = (new EspecieModel())->registrarEspecie($nombre, $id_genero, $_SESSION['id_usuario_accion']);
         $destino = $r['Exito'] == 1 ? 'registrado_success' : 'error';
         header("Location: ?controlador=Taxonomia&accion=mostrar&tab=especies&status=$destino");
     }

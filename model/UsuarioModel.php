@@ -20,11 +20,11 @@ class UsuarioModel
     }
 
     // Actualizar (Update)
-    public function editarUsuario($id_usuario, $nombre, $correo, $id_rol, $id_usuario_accion)
+    public function editarUsuario($id_usuario, $nombre, $correo, $id_rol,$id_usuario_accion)
     {
         try {
             $consulta = $this->db->prepare('CALL sp_editarUsuario(?, ?, ?, ?, ?)');
-            $resultado = $consulta->execute([$id_usuario, $nombre, $correo, $id_rol, $id_usuario_accion]);
+            $resultado = $consulta->execute([$id_usuario, $nombre, $correo, $id_rol,$id_usuario_accion]);
             $consulta->closeCursor();
             return $resultado;
         } catch (PDOException $e) {

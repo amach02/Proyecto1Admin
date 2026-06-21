@@ -8,9 +8,9 @@ class RecuperacionModel {
         $this->db = SPDO::singleton();
     }
 
-    public function crearToken($correo) {
-        $consulta = $this->db->prepare('CALL sp_crear_token_recuperacion(?)');
-        $consulta->execute(array($correo));
+    public function crearToken($correo, $id_usuario_accion) {
+        $consulta = $this->db->prepare('CALL sp_crear_token_recuperacion(?, ?)');
+        $consulta->execute(array($correo, $id_usuario_accion));
         $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
         $consulta->closeCursor();
         return $resultado;
@@ -24,9 +24,9 @@ class RecuperacionModel {
         return $resultado;
     }
 
-    public function cambiarContrasena($token, $nueva) {
-        $consulta = $this->db->prepare('CALL sp_cambiar_contrasena_token(?, ?)');
-        $consulta->execute(array($token, $nueva));
+    public function cambiarContrasena($token, $nueva, $id_usuario_accion) {
+        $consulta = $this->db->prepare('CALL sp_cambiar_contrasena_token(?, ?, ?)');
+        $consulta->execute(array($token, $nueva, $id_usuario_accion));
         $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
         $consulta->closeCursor();
         return $resultado;
