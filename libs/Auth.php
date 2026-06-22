@@ -24,6 +24,7 @@ class Auth
             'Reporte'         => '*',
             'Index'           => '*',
             'Session'         => '*',
+
         ),
 
         'Curador' => array(
@@ -36,12 +37,9 @@ class Auth
                 'buscarPorCodigo',
                 'rutaFisica',
                 'vincularPlanta',
-                'mostrarDetalle'    // ← ver el detalle con carrusel
-            ),
-            'Fotografia' => array(
-                'guardarFoto',      // ← puede subir
-                'eliminarFoto',     // ← puede eliminar
-                'listarFotos'
+                'cargarGavetas',
+                'cargarViales',
+                'cargarViales'
             ),
             'Taxonomia'  => array('mostrar'),
             'Orden'      => array(

@@ -36,7 +36,7 @@ class VialController
             return;
         }
 
-        $respuesta = $this->model->registrarVial($codigo, $id_caja);
+        $respuesta = $this->model->registrarVial($codigo, $id_caja, $_SESSION['id_usuario_accion']);
 
         if ($respuesta['Exito'] == 1) {
             header('Location: ?controlador=Infraestructura&accion=mostrar&tab=viales&status=registrado_success');
@@ -56,7 +56,7 @@ class VialController
             return;
         }
 
-        if ($this->model->editarVial($id, $codigo, $id_caja)) {
+        if ($this->model->editarVial($id, $codigo, $id_caja, $_SESSION['id_usuario_accion'])) {
             header('Location: ?controlador=Infraestructura&accion=mostrar&tab=viales&status=editado_success');
         } else { 
             header("Location: ?controlador=Vial&accion=mostrarEditar&id=$id&status=error"); 
@@ -71,7 +71,7 @@ class VialController
         }
 
         $id = $_GET['id'];
-        $respuesta = $this->model->inhabilitarVial($id);
+        $respuesta = $this->model->inhabilitarVial($id, $_SESSION['id_usuario_accion']);
         
         if ($respuesta['Exito'] == 1) { 
             header('Location: ?controlador=Infraestructura&accion=mostrar&tab=viales&status=inhabilitado_success'); 

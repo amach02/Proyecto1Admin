@@ -1,4 +1,5 @@
 <?php
+
 class EspecieModel
 {
     private $db;
@@ -6,43 +7,140 @@ class EspecieModel
     public function __construct()
     {
         require_once 'libs/SPDO.php';
+
         $this->db = SPDO::singleton();
     }
 
     public function listarEspecies($id_genero = 0)
     {
-        $consulta = $this->db->prepare('CALL sp_listar_especies(?)');
-        $consulta->execute([$id_genero]);
-        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
-        $consulta->closeCursor();
-        return $resultado;
-    }
-
-    public function registrarEspecie($nombre, $id_genero)
-    {
         try {
-            $consulta = $this->db->prepare('CALL sp_registrar_especie(?, ?)');
-            $consulta->execute([$nombre, $id_genero]);
-            $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+            $consulta = $this->db->prepare(
+                'CALL sp_listar_especies(?)'
+            );
+
+            $consulta->execute(
+                array($id_genero)
+            );
+
+            $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+
+            while ($consulta->nextRowset()) {
+            }
+
             $consulta->closeCursor();
+
             return $resultado;
+
         } catch (PDOException $e) {
-            return ['Resultado' => 'Error de conexión a la base de datos.', 'Exito' => 0];
+            return array();
         }
     }
 
-    public function buscarEspeciePorId($id_especie) {
-        $consulta = $this->db->prepare('CALL sp_buscarEspeciePorId(?)');
-        $consulta->execute([$id_especie]);
-        $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
-        $consulta->closeCursor(); return $resultado;
+    public function registrarEspecie(
+        $nombre,
+        $id_genero,
+        $id_usuario_accion
+    ) {
+        try {
+            /*
+             * El procedimiento debe recibir:
+             * nombre, género y usuario que realiza la acción.
+             */
+            $consulta = $this->db->prepare(
+                'CALL sp_registrarEspecie(?, ?, ?)'
+            );
+
+            $consulta->execute(
+                array(
+                    $nombre,
+                    $id_genero,
+                    $id_usuario_accion
+                )
+            );
+
+            $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+
+            while ($consulta->nextRowset()) {
+            }
+
+            $consulta->closeCursor();
+
+            return $resultado;
+
+        } catch (PDOException $e) {
+            return array(
+                'Resultado' => 'Error al registrar la especie: '
+                    . $e->getMessage(),
+                'Exito' => 0
+            );
+        }
     }
 
-    public function editarEspecie($id, $nombre, $id_genero) {
+    public function buscarEspeciePorId($id_especie)
+    {
         try {
-            $consulta = $this->db->prepare('CALL sp_editarEspecie(?, ?, ?)');
-            return $consulta->execute([$id, $nombre, $id_genero]);
-        } catch (PDOException $e) { return false; }
+            $consulta = $this->db->prepare(
+                'CALL sp_buscarEspeciePorId(?)'
+            );
+
+            $consulta->execute(
+                array($id_especie)
+            );
+
+            $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+
+            while ($consulta->nextRowset()) {
+            }
+
+            $consulta->closeCursor();
+
+            return $resultado;
+
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public function editarEspecie(
+        $id,
+        $nombre,
+        $id_genero,
+        $id_usuario_accion
+    ) {
+        try {
+            /*
+             * Ya no se recibe $id_usuario adicional.
+             * Solamente se necesita el usuario que ejecuta la acción.
+             */
+            $consulta = $this->db->prepare(
+                'CALL sp_editarEspecie(?, ?, ?, ?)'
+            );
+
+            $consulta->execute(
+                array(
+                    $id,
+                    $nombre,
+                    $id_genero,
+                    $id_usuario_accion
+                )
+            );
+
+            $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+
+            while ($consulta->nextRowset()) {
+            }
+
+            $consulta->closeCursor();
+
+            return $resultado;
+
+        } catch (PDOException $e) {
+            return array(
+                'Resultado' => 'Error al editar la especie: '
+                    . $e->getMessage(),
+                'Exito' => 0
+            );
+        }
     }
 }
 ?>

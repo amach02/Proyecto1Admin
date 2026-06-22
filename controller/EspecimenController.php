@@ -1,5 +1,8 @@
 <?php
+
+require_once 'libs/View.php';
 require_once 'model/EspecimenModel.php';
+require_once 'model/UsuarioModel.php';
 require_once 'model/FotografiaModel.php';
 
 class EspecimenController
@@ -9,17 +12,23 @@ class EspecimenController
 
     public function __construct()
     {
-        require_once 'libs/View.php';
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         $this->view = new View();
         $this->model = new EspecimenModel();
     }
 
-    // Carga la interfaz pasándole los datos recuperados por ID
     public function mostrarEditar()
     {
         if (!isset($_GET['id'])) {
-            header('Location: ?controlador=Index&accion=mostrar&status=error');
-            return;
+            header(
+                'Location: ?controlador=Index'
+                . '&accion=mostrar'
+                . '&status=error'
+            );
+            exit;
         }
 
         $id = $_GET['id'];
@@ -28,117 +37,103 @@ class EspecimenController
 
         if ($datosEspecimen) {
             require_once 'model/EspecieModel.php';
-            // NUEVO: Requerimos los modelos de ubicación para que puedas cambiarlos al editar
             require_once 'model/VialModel.php';
             require_once 'model/GavetaModel.php';
 
             $listaEspecies = (new EspecieModel())->listarEspecies();
-            // NUEVO: Obtenemos las listas para los dropdowns de la vista de edición
-            $listaViales   = (new VialModel())->listarVialesDisponibles();
-            $listaGavetas  = (new GavetaModel())->listarGavetas(); // Asegúrate de tener este método en GavetaModel
+            $listaViales = (new VialModel())->listarVialesDisponibles();
+            $listaGavetas = (new GavetaModel())->listarGavetas();
 
-            $this->view->show('editarEspecimenView.php', [
-                'especimen' => $datosEspecimen,
-                'especies'  => $listaEspecies,
-                'viales'    => $listaViales,   // NUEVO
-                'gavetas'   => $listaGavetas   // NUEVO
-            ]);
-        } else {
-            header('Location: ?controlador=Index&accion=mostrar&status=no_encontrado');
-        }
-    }
+            $this->view->show(
+                'editarEspecimenView.php',
+                array(
+                    'especimen' => $datosEspecimen,
+                    'especies'  => $listaEspecies,
+                    'viales'    => $listaViales,
+                    'gavetas'   => $listaGavetas
+                )
+            );
 
-    // Procesa el envío del formulario (Método POST)
-    public function editar()
-    {
-        $id           = trim($_POST['id_especimen']);
-        $codigo       = trim($_POST['codigo_id']);
-        $localizacion = trim($_POST['localizacion_recoleccion']);
-        $fecha        = trim($_POST['fecha_recoleccion']);
-        $estado       = trim($_POST['estado']);
-        $id_especie   = trim($_POST['id_especie']);
-
-        // NUEVO: Capturamos ambas opciones de almacenamiento, usando isset por si vienen vacías
-        $id_gaveta    = isset($_POST['id_gaveta']) ? trim($_POST['id_gaveta']) : '';
-        $id_vial      = isset($_POST['id_vial']) ? trim($_POST['id_vial']) : '';
-
-        // Validación técnica en servidor del único campo estrictamente obligatorio
-        if (empty($id) || empty($codigo)) {
-            header("Location: ?controlador=Especimen&accion=mostrarEditar&id=$id&status=invalido");
             return;
         }
 
-        // NUEVO: Agregamos $id_gaveta a la llamada del modelo
-        $resultado = $this->model->editarEspecimen($id, $codigo, $localizacion, $fecha, $estado, $id_especie, $id_gaveta, $id_vial);
-
-        if ($resultado) {
-            header('Location: ?controlador=Especimen&accion=mostrarListar&status=especimen_editado_success');
-        } else {
-            header("Location: ?controlador=Especimen&accion=mostrarEditar&id=$id&status=error");
-        }
+        header(
+            'Location: ?controlador=Index'
+            . '&accion=mostrar'
+            . '&status=no_encontrado'
+        );
+        exit;
     }
 
-    public function mostrarListar()
-    {
-        $especimenes = $this->model->listarEspecimenes();
-        $this->view->show('listarEspecimenesView.php', ['especimenes' => $especimenes]);
-    }
-
-    public function mostrarRegistrar()
-    {
-        // 1. Llamamos a los modelos de Infraestructura
-        require_once 'model/GavetaModel.php';
-        require_once 'model/VialModel.php';
-        require_once 'model/EspecieModel.php';
-        
-        // 2. Traemos las listas de los contenedores finales
-        $gavetas = (new GavetaModel())->listarGavetas();
-        $viales  = (new VialModel())->listarVialesDisponibles();
-        $especies = (new EspecieModel())->listarEspecies();
-        
-        // 3. Enviamos estas variables a la vista del espécimen
-        require_once 'libs/View.php';
-        $view = new View();
-        $view->show('registrarEspecimenView.php', array(
-            'gavetas'  => $gavetas,
-            'viales'   => $viales,
-            'especies' => $especies
-        ));
-    }
-
-    public function registrar()
+    public function editar()
     {
         try {
-            // 1. Recibir datos del formulario
-            $codigo_id         = trim($_POST['codigo_id']);
-            $fecha_recoleccion = !empty($_POST['fecha_recoleccion']) ? $_POST['fecha_recoleccion'] : null;
-            $localizacion      = trim($_POST['localizacion_recoleccion']);
-            $estado            = $_POST['estado'];
-            $id_especie        = !empty($_POST['id_especie']) ? $_POST['id_especie'] : null;
-            $id_usuario_accion = isset($_SESSION['id_usuario']) ? $_SESSION['id_usuario'] : 0;
+            $id = isset($_POST['id_especimen'])
+                ? trim($_POST['id_especimen'])
+                : '';
 
-            // 2. Validar campo obligatorio
-            if (empty($codigo_id)) {
-                header("Location: ?controlador=Especimen&accion=mostrarRegistrar&status=invalido");
+            $codigo = isset($_POST['codigo_id'])
+                ? trim($_POST['codigo_id'])
+                : '';
+
+            $localizacion = isset($_POST['localizacion_recoleccion'])
+                ? trim($_POST['localizacion_recoleccion'])
+                : '';
+
+            $fecha = isset($_POST['fecha_recoleccion'])
+                ? trim($_POST['fecha_recoleccion'])
+                : '';
+
+            $estado = isset($_POST['estado'])
+                ? trim($_POST['estado'])
+                : '';
+
+            $id_especie = isset($_POST['id_especie'])
+                ? trim($_POST['id_especie'])
+                : '';
+
+            $id_gaveta = !empty($_POST['id_gaveta'])
+                ? trim($_POST['id_gaveta'])
+                : null;
+
+            $id_vial = !empty($_POST['id_vial'])
+                ? trim($_POST['id_vial'])
+                : null;
+
+            /*
+             * Usuario que realiza la modificación.
+             */
+            $id_usuario_accion = isset($_SESSION['id_usuario'])
+                ? $_SESSION['id_usuario']
+                : null;
+
+            if (empty($id) || empty($codigo)) {
+                header(
+                    'Location: ?controlador=Especimen'
+                    . '&accion=mostrarEditar'
+                    . '&id=' . urlencode($id)
+                    . '&status=invalido'
+                );
                 exit;
             }
 
-            // 3. Decidir contenedor según selección
-            $tipo_contenedor = isset($_POST['tipo_contenedor']) ? $_POST['tipo_contenedor'] : '';
-            $id_gaveta       = null;
-            $id_vial         = null;
-
-            if ($tipo_contenedor === 'gabinete') {
-                $id_gaveta = !empty($_POST['id_gaveta']) ? $_POST['id_gaveta'] : null;
-            } else if ($tipo_contenedor === 'caja') {
-                $id_vial = !empty($_POST['id_vial']) ? $_POST['id_vial'] : null;
+            if ($id_usuario_accion === null) {
+                throw new Exception(
+                    'No se encontró el usuario autenticado en la sesión.'
+                );
             }
 
-            // 4. Guardar el espécimen en BD
-            $resultado = $this->model->registrarEspecimen(
-                $codigo_id,
+            /*
+             * Se agrega el usuario como último parámetro.
+             *
+             * El método editarEspecimen() del modelo también debe
+             * recibir este noveno parámetro.
+             */
+            $resultado = $this->model->editarEspecimen(
+                $id,
+                $codigo,
                 $localizacion,
-                $fecha_recoleccion,
+                $fecha,
                 $estado,
                 $id_especie,
                 $id_gaveta,
@@ -146,78 +141,352 @@ class EspecimenController
                 $id_usuario_accion
             );
 
-            
+            /*
+             * Permite que el modelo devuelva un booleano o el arreglo
+             * producido por un procedimiento almacenado.
+             */
+            $exito = false;
 
-            if (isset($resultado['Exito']) && $resultado['Exito'] == 1) {
-                $id_nuevo = $resultado['id_nuevo_especimen'];
-
-                // 5. Guardar fotos si se subieron desde el widget
-                if (!empty($_POST['fotos']) && is_array($_POST['fotos'])) {
-                    require_once 'model/FotografiaModel.php';
-                    $fotoModel = new FotografiaModel();
-                    foreach ($_POST['fotos'] as $url_foto) {
-                        $url_foto = trim($url_foto);
-                        if (!empty($url_foto)) {
-                            $fotoModel->registrarFotografia($url_foto, $id_nuevo, $id_usuario_accion);
-                        }
-                    }
-                }
-
-                header("Location: ?controlador=Especimen&accion=mostrarListar&status=registrado_success");
+            if (is_array($resultado)) {
+                $exito = isset($resultado['Exito'])
+                    && (int) $resultado['Exito'] === 1;
             } else {
-                header("Location: ?controlador=Especimen&accion=mostrarRegistrar&status=error");
+                $exito = (bool) $resultado;
             }
+
+            if ($exito) {
+                header(
+                    'Location: ?controlador=Especimen'
+                    . '&accion=mostrarListar'
+                    . '&status=especimen_editado_success'
+                );
+                exit;
+            }
+
+            header(
+                'Location: ?controlador=Especimen'
+                . '&accion=mostrarEditar'
+                . '&id=' . urlencode($id)
+                . '&status=error'
+            );
             exit;
+
         } catch (Exception $e) {
-            die("<strong>ERROR FATAL AL GUARDAR:</strong> " . $e->getMessage());
+            die(
+                '<strong>Error al editar el espécimen:</strong> '
+                . htmlspecialchars(
+                    $e->getMessage(),
+                    ENT_QUOTES,
+                    'UTF-8'
+                )
+            );
         }
     }
 
+    public function mostrarListar()
+    {
+        $especimenes = $this->model->listarEspecimenes();
+
+        $this->view->show(
+            'listarEspecimenesView.php',
+            array(
+                'especimenes' => $especimenes
+            )
+        );
+    }
+
+   public function mostrarRegistrar()
+{
+    require_once 'model/EspecieModel.php';
+    require_once 'model/GabineteModel.php';
+    require_once 'model/CajaModel.php';
+
+    $especieModel = new EspecieModel();
+    $gabineteModel = new GabineteModel();
+    $cajaModel = new CajaModel();
+
+    $especies = $especieModel->listarEspecies();
+    $gabinetes = $gabineteModel->listarGabinetes();
+    $cajas = $cajaModel->listarCajas();
+
+    $this->view->show(
+        'registrarEspecimenView.php',
+        array(
+            'especies' => $especies,
+            'gabinetes' => $gabinetes,
+            'cajas' => $cajas
+        )
+    );
+}
+
+    public function registrar()
+{
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+
+    try {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $codigo_id = isset($_POST['codigo_id'])
+            ? trim($_POST['codigo_id'])
+            : '';
+
+        $fecha_recoleccion = !empty($_POST['fecha_recoleccion'])
+            ? $_POST['fecha_recoleccion']
+            : null;
+
+        $localizacion = isset($_POST['localizacion_recoleccion'])
+            ? trim($_POST['localizacion_recoleccion'])
+            : '';
+
+        $estado = isset($_POST['estado']) && $_POST['estado'] != ''
+            ? $_POST['estado']
+            : 'disponible';
+
+        $id_especie = !empty($_POST['id_especie'])
+            ? $_POST['id_especie']
+            : null;
+
+        $tipo_contenedor = isset($_POST['tipo_contenedor'])
+            ? $_POST['tipo_contenedor']
+            : '';
+
+        $id_gaveta = !empty($_POST['id_gaveta'])
+            ? $_POST['id_gaveta']
+            : null;
+
+        $id_vial = !empty($_POST['id_vial'])
+            ? $_POST['id_vial']
+            : null;
+
+        $id_usuario_accion = isset($_SESSION['id_usuario'])
+            ? $_SESSION['id_usuario']
+            : null;
+
+        if ($codigo_id == '') {
+            throw new Exception('El código ID del espécimen es obligatorio.');
+        }
+
+        if ($id_usuario_accion === null) {
+            throw new Exception('No se encontró el id_usuario en la sesión.');
+        }
+
+        if ($tipo_contenedor === 'gabinete') {
+            $id_vial = null;
+
+            if ($id_gaveta === null) {
+                throw new Exception(
+                    'Debe seleccionar una gaveta para guardar el espécimen en almacenamiento seco.'
+                );
+            }
+
+        } elseif ($tipo_contenedor === 'caja') {
+            $id_gaveta = null;
+
+            if ($id_vial === null) {
+                throw new Exception(
+                    'Debe seleccionar un vial disponible para guardar el espécimen en almacenamiento líquido.'
+                );
+            }
+
+        } else {
+            throw new Exception('Debe seleccionar gabinete o caja.');
+        }
+
+        $resultado = $this->model->registrarEspecimen(
+            $codigo_id,
+            $localizacion,
+            $fecha_recoleccion,
+            $estado,
+            $id_especie,
+            $id_vial,
+            $id_gaveta,
+            $id_usuario_accion
+        );
+
+        $exito = false;
+        $mensajeError = 'No se pudo registrar el espécimen.';
+
+        if (is_array($resultado)) {
+            if (isset($resultado['Exito']) && (int) $resultado['Exito'] === 1) {
+                $exito = true;
+            }
+
+            if (isset($resultado['Resultado'])) {
+                $mensajeError = $resultado['Resultado'];
+            }
+        } else {
+            $exito = (bool) $resultado;
+        }
+
+        if (!$exito) {
+            throw new Exception($mensajeError);
+        }
+
+        header(
+            'Location: ?controlador=Especimen'
+            . '&accion=mostrarRegistrar'
+            . '&status=registrado_success'
+        );
+        exit;
+
+    } catch (Exception $e) {
+        die(
+            '<strong>ERROR FATAL AL GUARDAR:</strong> '
+            . $e->getMessage()
+        );
+    }
+}
+
     public function buscarPorCodigo()
     {
-        $codigo = isset($_GET['codigo']) ? trim($_GET['codigo']) : '';
+        $codigo = isset($_GET['codigo'])
+            ? trim($_GET['codigo'])
+            : '';
 
         if (empty($codigo)) {
-            header('Location: ?controlador=Especimen&accion=mostrarListar&status=invalido');
-            return;
+            header(
+                'Location: ?controlador=Especimen'
+                . '&accion=mostrarListar'
+                . '&status=invalido'
+            );
+            exit;
         }
 
         $especimen = $this->model->buscarEspecimenPorCodigo($codigo);
-        $this->view->show('listarEspecimenesView.php', [
-            'especimenes' => $especimen ? [$especimen] : [],
-            'busqueda'    => $codigo
-        ]);
+
+        $this->view->show(
+            'listarEspecimenesView.php',
+            array(
+                'especimenes' => $especimen
+                    ? array($especimen)
+                    : array(),
+                'busqueda' => $codigo
+            )
+        );
     }
 
     public function rutaFisica()
     {
         if (!isset($_GET['id'])) {
-            header('Location: ?controlador=Especimen&accion=mostrarListar&status=error');
-            return;
+            header(
+                'Location: ?controlador=Especimen'
+                . '&accion=mostrarListar'
+                . '&status=error'
+            );
+            exit;
         }
 
-        $id   = $_GET['id'];
+        $id = $_GET['id'];
+
         $ruta = $this->model->consultarRutaFisica($id);
-        $this->view->show('rutaFisicaView.php', ['ruta' => $ruta]);
+
+        $this->view->show(
+            'rutaFisicaView.php',
+            array(
+                'ruta' => $ruta
+            )
+        );
     }
+
+    public function cargarGavetas()
+{
+    require_once 'model/GavetaModel.php';
+
+    $id_gabinete = isset($_GET['id_gabinete']) ? $_GET['id_gabinete'] : 0;
+
+    $model = new GavetaModel();
+    $gavetas = $model->listarPorGabineteConRuta($id_gabinete);
+
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($gavetas);
+    exit;
+}
+
+public function cargarViales()
+{
+    require_once 'model/VialModel.php';
+
+    $id_caja = isset($_GET['id_caja']) ? $_GET['id_caja'] : 0;
+
+    $model = new VialModel();
+    $viales = $model->listarDisponiblesPorCajaConRuta($id_caja);
+
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($viales);
+    exit;
+}
 
     public function vincularPlanta()
     {
-        $id_especimen = trim($_POST['id_especimen']);
-        $id_planta    = trim($_POST['id_planta']);
-        $id_usuario   = isset($_SESSION['id_usuario']) ? $_SESSION['id_usuario'] : 0;
+        try {
+            $id_especimen = isset($_POST['id_especimen'])
+                ? trim($_POST['id_especimen'])
+                : '';
 
-        if (empty($id_especimen) || empty($id_planta)) {
-            header("Location: ?controlador=Especimen&accion=mostrarEditar&id=$id_especimen&status=invalido");
-            return;
-        }
+            $id_planta = isset($_POST['id_planta'])
+                ? trim($_POST['id_planta'])
+                : '';
 
-        $respuesta = $this->model->vincularPlanta($id_especimen, $id_planta, $id_usuario);
+            $id_usuario_accion = isset($_SESSION['id_usuario'])
+                ? $_SESSION['id_usuario']
+                : null;
 
-        if ($respuesta['Exito'] == 1) {
-            header("Location: ?controlador=Especimen&accion=mostrarEditar&id=$id_especimen&status=planta_vinculada");
-        } else {
-            header("Location: ?controlador=Especimen&accion=mostrarEditar&id=$id_especimen&status=error_vinculo");
+            if (empty($id_especimen) || empty($id_planta)) {
+                header(
+                    'Location: ?controlador=Especimen'
+                    . '&accion=mostrarEditar'
+                    . '&id=' . urlencode($id_especimen)
+                    . '&status=invalido'
+                );
+                exit;
+            }
+
+            if ($id_usuario_accion === null) {
+                throw new Exception(
+                    'No se encontró el usuario autenticado.'
+                );
+            }
+
+            $respuesta = $this->model->vincularPlanta(
+                $id_especimen,
+                $id_planta,
+                $id_usuario_accion
+            );
+
+            if (
+                is_array($respuesta)
+                && isset($respuesta['Exito'])
+                && (int) $respuesta['Exito'] === 1
+            ) {
+                header(
+                    'Location: ?controlador=Especimen'
+                    . '&accion=mostrarEditar'
+                    . '&id=' . urlencode($id_especimen)
+                    . '&status=planta_vinculada'
+                );
+                exit;
+            }
+
+            header(
+                'Location: ?controlador=Especimen'
+                . '&accion=mostrarEditar'
+                . '&id=' . urlencode($id_especimen)
+                . '&status=error_vinculo'
+            );
+            exit;
+
+        } catch (Exception $e) {
+            die(
+                '<strong>Error al vincular la planta:</strong> '
+                . htmlspecialchars(
+                    $e->getMessage(),
+                    ENT_QUOTES,
+                    'UTF-8'
+                )
+            );
         }
     }
 
@@ -245,3 +514,4 @@ class EspecimenController
         ]);
     }
 }
+?>
