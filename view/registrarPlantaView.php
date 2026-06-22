@@ -19,7 +19,7 @@
             </div>
             <div class="d-flex gap-2 mt-4">
                 <button type="submit" class="btn btn-warning text-dark fw-bold px-4">Guardar Planta</button>
-                <a href="?controlador=Infraestructura&accion=mostrar&tab=plantas" class="btn btn-secondary">Cancelar</a>
+                <a href="?controlador=Planta&accion=mostrarListar" class="btn btn-secondary">Cancelar</a>
             </div>
         </form>
     </div>

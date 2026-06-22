@@ -26,7 +26,7 @@ $status = isset($_GET['status']) ? $_GET['status'] : '';
             <div class="d-flex justify-content-between mt-4">
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-warning text-dark fw-bold">Guardar Cambios</button>
-                    <a href="?controlador=Infraestructura&accion=mostrar&tab=plantas" class="btn btn-secondary">Volver al Panel</a>
+                    <a href="?controlador=Planta&accion=mostrarListar" class="btn btn-secondary">Volver al Panel</a>
                 </div>
                 <a href="?controlador=Planta&accion=inhabilitar&id=<?php echo htmlspecialchars($planta['id_planta']); ?>" class="btn btn-danger" onclick="return confirm('¿Seguro que desea inhabilitar esta planta?');">Inhabilitar Planta</a>
             </div>
