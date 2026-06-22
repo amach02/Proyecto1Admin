@@ -2,6 +2,8 @@
 
 require_once 'libs/View.php';
 require_once 'model/EspecimenModel.php';
+require_once 'model/UsuarioModel.php';
+require_once 'model/FotografiaModel.php';
 
 class EspecimenController
 {
@@ -486,6 +488,30 @@ public function cargarViales()
                 )
             );
         }
+    }
+
+    public function mostrarDetalle()
+    {
+        if (!isset($_GET['id'])) {
+            header('Location: ?controlador=Especimen&accion=mostrarListar&status=error');
+            return;
+        }
+
+        $id        = intval($_GET['id']);
+        $especimen = $this->model->buscarEspecimenPorId($id);
+
+        if (!$especimen) {
+            header('Location: ?controlador=Especimen&accion=mostrarListar&status=no_encontrado');
+            return;
+        }
+
+        $fotografiaModel = new FotografiaModel();
+        $fotos = $fotografiaModel->listarFotosPorEspecimen($id);
+
+        $this->view->show('detalleEspecimenView.php', [
+            'especimen' => $especimen,
+            'fotos'     => $fotos,
+        ]);
     }
 }
 ?>

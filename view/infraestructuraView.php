@@ -2,9 +2,9 @@
 // Declaraciones base para evitar alertas de variables en tu editor de código
 $gabinetes = isset($gabinetes) ? $gabinetes : array();
 $cajas     = isset($cajas) ? $cajas : array();
+$plantas   = isset($plantas) ? $plantas : array();
 $status    = isset($_GET['status']) ? $_GET['status'] : '';
 
-// Esta variable controla cuál de los dos bloques se va a renderizar en la pantalla
 $tab       = isset($_GET['tab']) ? $_GET['tab'] : 'gabinetes';
 
 include 'public/header.php';
@@ -17,8 +17,14 @@ include 'public/header.php';
         <div class="alert alert-warning alert-dismissible fade show">Verifique los campos obligatorios antes de guardar. <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
     <?php elseif ($status === 'error'): ?>
         <div class="alert alert-danger alert-dismissible fade show">Error al procesar la solicitud. El código podría estar duplicado. <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-    <?php elseif ($status === 'registrado_success'): ?>
+    <?php elseif ($status === 'registrado_success' || $status === 'registrada_success'): ?>
         <div class="alert alert-success alert-dismissible fade show">Registro completado exitosamente. <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    <?php elseif ($status === 'editada_success'): ?>
+        <div class="alert alert-success alert-dismissible fade show">Planta hospedadora actualizada correctamente. <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    <?php elseif ($status === 'inhabilitada_success'): ?>
+        <div class="alert alert-warning alert-dismissible fade show">Planta hospedadora inhabilitada correctamente. <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    <?php elseif ($status === 'no_encontrado'): ?>
+        <div class="alert alert-danger alert-dismissible fade show">No se encontró el registro solicitado. <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
     <?php endif; ?>
 
     <div class="row g-4 mb-5">
@@ -78,6 +84,48 @@ include 'public/header.php';
                                 <div class="alert alert-secondary text-center py-4 fs-6">No se encontraron gabinetes registrados en la base de datos.</div>
                             <?php endif; ?>
                         </div>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($tab === 'plantas'): ?>
+            <div class="col-12">
+                <div class="card shadow-sm border-warning">
+                    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center py-3">
+                        <h4 class="mb-0">Plantas Hospedadoras Registradas</h4>
+                        <button class="btn btn-dark fw-bold" data-bs-toggle="modal" data-bs-target="#modalPlanta">+ Nueva Planta</button>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="text-muted small mb-4">Catálogo de plantas hospedadoras asociables a especímenes del laboratorio. Solo se pueden inhabilitar plantas sin especímenes vinculados.</p>
+
+                        <?php if (!empty($plantas)): ?>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped align-middle">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Nombre de la Planta</th>
+                                            <th class="text-end">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($plantas as $p): ?>
+                                            <tr>
+                                                <td class="text-muted"><?php echo htmlspecialchars($p['id_planta']); ?></td>
+                                                <td><strong><?php echo htmlspecialchars($p['nombre']); ?></strong></td>
+                                                <td class="text-end">
+                                                    <a href="?controlador=Planta&accion=mostrarEditar&id=<?php echo $p['id_planta']; ?>"
+                                                       class="btn btn-warning btn-sm text-dark fw-bold">Editar / Inhabilitar</a>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php else: ?>
+                            <div class="alert alert-secondary text-center py-4 fs-6">No se encontraron plantas hospedadoras registradas en la base de datos.</div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -193,6 +241,30 @@ include 'public/header.php';
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-info text-dark fw-bold px-4">Guardar Contenedor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPlanta" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title fw-bold">Registrar Nueva Planta Hospedadora</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="?controlador=Planta&accion=registrar">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nombre de la Planta <span class="text-danger">*</span></label>
+                        <input type="text" name="nombre" class="form-control form-control-lg" placeholder="Ej: Quercus robur" required>
+                        <div class="form-text">Ingrese el nombre común o científico de la planta hospedadora.</div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold px-4">Guardar Planta</button>
                 </div>
             </form>
         </div>

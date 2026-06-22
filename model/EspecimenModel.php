@@ -29,6 +29,21 @@ class EspecimenModel
             return $resultado;
 
         } catch (PDOException $e) {
+
+            return [
+                'Resultado' => $e->getMessage(),
+                'Exito' => 0
+            ];
+        }
+    }
+
+    // Ejecutar INHABILITAR (Usa consulta directa para no tocar MySQL)
+    public function inhabilitarEspecimen($id_especimen)
+    {
+        try {
+            $consulta = $this->db->prepare("UPDATE tb_especimen SET estado = 'inactivo' WHERE id_especimen = ?");
+            return $consulta->execute([$id_especimen]);
+        } catch (PDOException $e) {
             return false;
         }
     }

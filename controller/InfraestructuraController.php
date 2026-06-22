@@ -4,6 +4,7 @@ require_once 'model/GabineteModel.php';
 require_once 'model/GavetaModel.php';
 require_once 'model/CajaModel.php';
 require_once 'model/VialModel.php';
+require_once 'model/PlantaModel.php';
 
 class InfraestructuraController
 {

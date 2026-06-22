@@ -99,9 +99,9 @@ $status = isset($_GET['status']) ? $_GET['status'] : '';
                             Disponible
                         </option>
 
-                        <option value="pendiente_identificacion"
-                            <?php echo (isset($especimen['estado']) && $especimen['estado'] == 'pendiente_identificacion') ? 'selected' : ''; ?>>
-                            Pendiente de Identificación
+                        <option value="no_disponible"
+                            <?php echo (isset($especimen['estado']) && $especimen['estado'] == 'no_disponible') ? 'selected' : ''; ?>>
+                            no disponible 
                         </option>
 
                         <option value="prestado"

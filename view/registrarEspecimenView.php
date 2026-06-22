@@ -1,12 +1,11 @@
 <?php 
-// Aseguramos que las variables existan para que no dé error en pantalla si vienen vacías
-$gabinetes = isset($gabinetes) ? $gabinetes : array();
-$cajas     = isset($cajas) ? $cajas : array();
-$especies  = isset($especies) ? $especies : array();
+$gavetas  = isset($gavetas)  ? $gavetas  : array();
+$viales   = isset($viales)   ? $viales   : array();
+$especies = isset($especies) ? $especies : array();
+$status   = isset($_GET['status']) ? $_GET['status'] : '';
 
 include 'public/header.php'; 
 ?>
-<?php $status = isset($_GET['status']) ? $_GET['status'] : ''; ?>
 
 <div class="container mt-4" style="max-width:750px;">
     <div class="card shadow p-4 mb-5">
@@ -17,25 +16,25 @@ include 'public/header.php';
         </div>
 
         <?php if ($status === 'registrado_success'): ?>
-            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
-                <div>
-                    El espécimen ha sido registrado con éxito en el inventario.
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                El espécimen ha sido registrado con éxito en el inventario.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php elseif ($status === 'invalido'): ?>
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
                 <strong>Atención:</strong> El campo Código ID y los datos de almacenamiento son obligatorios.
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php elseif ($status === 'error'): ?>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <strong>Error al registrar:</strong> El código puede estar duplicado o el contenedor final ya se encuentra ocupado.
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
+
         <form method="POST" action="?controlador=Especimen&accion=registrar" onsubmit="return validarFormRegistro();">
 
+            <!-- Código e ID -->
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Código ID (etiqueta física) <span class="text-danger">*</span></label>
@@ -48,12 +47,14 @@ include 'public/header.php';
                 </div>
             </div>
 
+            <!-- Localización -->
             <div class="mb-3">
                 <label class="form-label">Localización de Recolección</label>
                 <input type="text" name="localizacion_recoleccion" class="form-control"
                        placeholder="Ej: Turrialba, Sector Norte">
             </div>
 
+            <!-- Estado y Especie -->
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Estado <span class="text-danger">*</span></label>
@@ -63,15 +64,16 @@ include 'public/header.php';
                         <option value="prestado">Prestado</option>
                     </select>
                 </div>
-
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Especie Taxonómica</label>
                     <select name="id_especie" class="form-select">
                         <option value="">— Sin clasificar —</option>
                         <?php foreach ($especies as $esp): ?>
                             <option value="<?php echo $esp['id_especie']; ?>">
+                                <?php echo htmlspecialchars($esp['orden']); ?> &gt;
+                                <?php echo htmlspecialchars($esp['familia']); ?> &gt;
+                                <?php echo htmlspecialchars($esp['genero']); ?> &gt;
                                 <?php echo htmlspecialchars($esp['especie']); ?>
-                                (<?php echo htmlspecialchars($esp['genero']); ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -192,6 +194,28 @@ include 'public/header.php';
 
 </div>
 
+            <!-- ═══════════════════════════════════════════
+                 SECCIÓN DE FOTOGRAFÍAS
+            ════════════════════════════════════════════ -->
+            <div class="mb-4 p-4 bg-light border rounded shadow-sm">
+                <label class="form-label fw-bold text-primary">Fotografías del Espécimen</label>
+
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <button type="button" class="btn btn-outline-success btn-sm" id="btnSubirFotoRegistro">
+                        + Agregar Foto
+                    </button>
+                    <span class="text-muted small" id="contadorFotos">Sin fotos agregadas</span>
+                </div>
+
+                <!-- inputs ocultos con las URLs de Cloudinary -->
+                <div id="contenedorUrlsFotos"></div>
+
+                <!-- miniaturas de preview -->
+                <div id="previstaFotos" class="d-flex flex-wrap gap-2 mt-2"></div>
+
+                <div class="form-text text-muted small mt-1">
+                    Formatos permitidos: PNG, JPG. Las fotos se guardarán junto con el espécimen.
+                </div>
             </div>
 
             <div class="d-grid mt-2">
@@ -202,9 +226,12 @@ include 'public/header.php';
     </div>
 </div>
 
+<script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+
 <script>
+// ── Validación del formulario ─────────────────────────────────
 function validarFormRegistro() {
-    const codigo = document.getElementById('codigo_id').value.trim();
+    var codigo = document.getElementById('codigo_id').value.trim();
     if (!codigo) {
         alert('El Código ID es obligatorio.');
         return false;
