@@ -51,11 +51,11 @@ try {
             // NUEVO: Endpoints para Plantas (HU14)
             if (isset($_GET['accion'])) {
                 $modPlanta = new PlantaModel();
-                
+
                 if ($_GET['accion'] === 'listar_plantas') {
                     enviarRespuesta(200, "Catálogo obtenido", $modPlanta->listarPlantas());
                 }
-                
+
                 if ($_GET['accion'] === 'plantas_vinculadas' && isset($_GET['id_especimen'])) {
                     enviarRespuesta(200, "Plantas vinculadas", $modPlanta->listarPlantasPorEspecimen($_GET['id_especimen']));
                 }
@@ -121,16 +121,16 @@ try {
         case 'POST':
             // Verificamos si la petición viene de un formulario (x-www-form-urlencoded) o si es JSON crudo
             // Para poder manejar los $_GET y peticiones con Query Params
-            
+
             // NUEVO: Endpoint para Vincular Planta (HU14)
             if (isset($_GET['accion']) && $_GET['accion'] === 'vincular_planta') {
                 $datos = json_decode(file_get_contents("php://input"), true);
                 $modPlanta = new PlantaModel();
-                
+
                 $id_esp = $datos['id_especimen'];
                 $id_pl = $datos['id_planta'];
                 $id_usu = isset($datos['id_usuario']) ? $datos['id_usuario'] : 1;
-                
+
                 $res = $modPlanta->vincularPlanta($id_esp, $id_pl, $id_usu);
                 if ($res && isset($res['Exito']) && $res['Exito'] == 1) {
                     enviarRespuesta(201, "Planta vinculada correctamente", $res);
@@ -221,8 +221,25 @@ try {
 
         case 'PUT':
             $datos = json_decode(file_get_contents("php://input"), true);
-            $identificador = isset($datos['codigo_id']) ? $datos['codigo_id'] : null;
 
+            // NUEVO: Cambiar estado del espécimen (para confirmar préstamo desde carrito)
+            if (isset($datos['accion']) && $datos['accion'] === 'cambiar_estado') {
+                if (empty($datos['id_especimen']) || empty($datos['estado'])) {
+                    enviarRespuesta(400, "Se requieren 'id_especimen' y 'estado'");
+                }
+                $id_usuario = isset($datos['id_usuario']) ? $datos['id_usuario'] : 1;
+                $res = $model->cambiarEstado($datos['id_especimen'], $datos['estado'], $id_usuario);
+
+                if ($res && isset($res['Exito']) && $res['Exito'] == 1) {
+                    enviarRespuesta(200, "Estado actualizado correctamente");
+                } else {
+                    enviarRespuesta(500, "Error al actualizar el estado");
+                }
+                break;
+            }
+
+            // Lógica original de editar espécimen
+            $identificador = isset($datos['codigo_id']) ? $datos['codigo_id'] : null;
             if (!empty($datos['id_especimen'])) {
                 $res = $model->editarEspecimen(
                     $datos['id_especimen'],
@@ -247,7 +264,7 @@ try {
             if (isset($_GET['accion']) && $_GET['accion'] === 'desvincular_planta') {
                 $datos = json_decode(file_get_contents("php://input"), true);
                 $modPlanta = new PlantaModel();
-                
+
                 $res = $modPlanta->desvincularPlanta($datos['id_especimen'], $datos['id_planta']);
                 if ($res) {
                     enviarRespuesta(200, "Planta desvinculada correctamente");

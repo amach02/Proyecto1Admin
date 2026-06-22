@@ -154,4 +154,15 @@ class EspecimenModel
         $stmt->closeCursor();
         return $resultado;
     }
+
+    public function cambiarEstado($id_especimen, $estado, $id_usuario = 1) {
+    $stmt = $this->pdo->prepare("CALL sp_cambiar_estado_especimen(:id, :estado, :id_usuario)");
+    $stmt->bindParam(':id', $id_especimen, PDO::PARAM_INT);
+    $stmt->bindParam(':estado', $estado, PDO::PARAM_STR);
+    $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
+    $stmt->execute();
+    $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt->closeCursor();
+    return $resultado;
+}
 }
