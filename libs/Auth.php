@@ -24,6 +24,7 @@ class Auth
             'Reporte'         => '*',
             'Index'           => '*',
             'Session'         => '*',
+
         ),
 
         'Curador' => array(
@@ -37,7 +38,8 @@ class Auth
                 'rutaFisica',
                 'vincularPlanta',
                 'cargarGavetas',
-'cargarViales'
+                'cargarViales',
+                'cargarViales'
             ),
             'Taxonomia'  => array('mostrar'),
             'Orden'      => array(
