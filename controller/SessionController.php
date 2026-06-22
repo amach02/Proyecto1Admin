@@ -89,7 +89,7 @@ public function recuperar() {
 
     require_once 'model/RecuperacionModel.php';
     $model     = new RecuperacionModel();
-    $resultado = $model->crearToken($correo, $_SESSION['id_usuario'] ?? null);
+    $resultado = $model->crearToken($correo, $_SESSION['id_usuario'] ? $_SESSION['id_usuario'] : null);
 
     if (!$resultado || $resultado['Exito'] == 0) {
         header('Location: ?controlador=Session&accion=mostrarRecuperar&status=correo_no_encontrado');
@@ -146,7 +146,7 @@ public function cambiarContrasena() {
 
     require_once 'model/RecuperacionModel.php';
     $model     = new RecuperacionModel();
-    $resultado = $model->cambiarContrasena($token, $nueva, $_SESSION['id_usuario'] ?? null);
+    $resultado = $model->cambiarContrasena($token, $nueva, $_SESSION['id_usuario'] ? $_SESSION['id_usuario'] : null);
 
     if ($resultado && $resultado['Exito'] == 1) {
         header('Location: ?controlador=Session&accion=mostrarLogin&status=contrasena_cambiada');

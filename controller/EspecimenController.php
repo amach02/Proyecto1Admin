@@ -218,131 +218,125 @@ class EspecimenController
 }
 
     public function registrar()
-    {
-        ini_set('display_errors', 1);
-        error_reporting(E_ALL);
+{
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
 
-        try {
-            $codigo_id = isset($_POST['codigo_id'])
-                ? trim($_POST['codigo_id'])
-                : '';
-
-            $fecha_recoleccion = !empty($_POST['fecha_recoleccion'])
-                ? $_POST['fecha_recoleccion']
-                : null;
-
-            $localizacion = isset($_POST['localizacion_recoleccion'])
-                ? trim($_POST['localizacion_recoleccion'])
-                : '';
-
-            $estado = isset($_POST['estado'])
-                ? $_POST['estado']
-                : '';
-
-            $id_especie = !empty($_POST['id_especie'])
-                ? $_POST['id_especie']
-                : null;
-
-            $tipo_contenedor = isset($_POST['tipo_contenedor'])
-                ? $_POST['tipo_contenedor']
-                : '';
-
-            $id_gaveta = !empty($_POST['id_gaveta'])
-                ? $_POST['id_gaveta']
-                : null;
-
-            $id_vial = !empty($_POST['id_vial'])
-                ? $_POST['id_vial']
-                : null;
-
-            $id_usuario_accion = isset($_SESSION['id_usuario'])
-                ? $_SESSION['id_usuario']
-                : null;
-
-            if ($id_usuario_accion === null) {
-                throw new Exception(
-                    'No se encontró el id_usuario en la sesión.'
-                );
-            }
-
-            /*
-             * Se mantiene la lógica de almacenamiento:
-             *
-             * gabinete utiliza gaveta;
-             * caja utiliza vial.
-             */
-            if ($tipo_contenedor === 'gabinete') {
-                $id_vial = null;
-
-            } elseif ($tipo_contenedor === 'caja') {
-                $id_gaveta = null;
-
-            } else {
-                throw new Exception(
-                    'Debe seleccionar gabinete o caja.'
-                );
-            }
-
-            /*
-             * Aquí estaba el principal error:
-             * antes no se llamaba al modelo.
-             *
-             * El orden debe coincidir con el procedimiento:
-             * vial primero y gaveta después.
-             */
-            $resultado = $this->model->registrarEspecimen(
-                $codigo_id,
-                $localizacion,
-                $fecha_recoleccion,
-                $estado,
-                $id_especie,
-                $id_vial,
-                $id_gaveta,
-                $id_usuario_accion
-            );
-
-            $exito = false;
-            $mensajeError = 'No se pudo registrar el espécimen.';
-
-            if (is_array($resultado)) {
-                $exito = isset($resultado['Exito'])
-                    && (int) $resultado['Exito'] === 1;
-
-                if (isset($resultado['Resultado'])) {
-                    $mensajeError = $resultado['Resultado'];
-                }
-            } else {
-                $exito = (bool) $resultado;
-            }
-
-            if (!$exito) {
-                throw new Exception($mensajeError);
-            }
-
-            /*
-             * No se llama a BitacoraModel aquí.
-             *
-             * sp_registrar_especimen ya registra la acción en
-             * tb_bitacora utilizando $id_usuario_accion.
-             */
-            header(
-                'Location: ?controlador=Especimen'
-                . '&accion=mostrarRegistrar'
-                . '&status=registrado_success'
-            );
-            exit;
-
-        } catch (Exception $e) {
-            die(
-                '<strong>ERROR FATAL AL GUARDAR:</strong> '
-                . htmlspecialchars(
-                    $e->getMessage(),
-                    ENT_QUOTES,
-                    'UTF-8'
-                )
-            );
+    try {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
         }
+
+        $codigo_id = isset($_POST['codigo_id'])
+            ? trim($_POST['codigo_id'])
+            : '';
+
+        $fecha_recoleccion = !empty($_POST['fecha_recoleccion'])
+            ? $_POST['fecha_recoleccion']
+            : null;
+
+        $localizacion = isset($_POST['localizacion_recoleccion'])
+            ? trim($_POST['localizacion_recoleccion'])
+            : '';
+
+        $estado = isset($_POST['estado']) && $_POST['estado'] != ''
+            ? $_POST['estado']
+            : 'disponible';
+
+        $id_especie = !empty($_POST['id_especie'])
+            ? $_POST['id_especie']
+            : null;
+
+        $tipo_contenedor = isset($_POST['tipo_contenedor'])
+            ? $_POST['tipo_contenedor']
+            : '';
+
+        $id_gaveta = !empty($_POST['id_gaveta'])
+            ? $_POST['id_gaveta']
+            : null;
+
+        $id_vial = !empty($_POST['id_vial'])
+            ? $_POST['id_vial']
+            : null;
+
+        $id_usuario_accion = isset($_SESSION['id_usuario'])
+            ? $_SESSION['id_usuario']
+            : null;
+
+        if ($codigo_id == '') {
+            throw new Exception('El código ID del espécimen es obligatorio.');
+        }
+
+        if ($id_usuario_accion === null) {
+            throw new Exception('No se encontró el id_usuario en la sesión.');
+        }
+
+        if ($tipo_contenedor === 'gabinete') {
+            $id_vial = null;
+
+            if ($id_gaveta === null) {
+                throw new Exception(
+                    'Debe seleccionar una gaveta para guardar el espécimen en almacenamiento seco.'
+                );
+            }
+
+        } elseif ($tipo_contenedor === 'caja') {
+            $id_gaveta = null;
+
+            if ($id_vial === null) {
+                throw new Exception(
+                    'Debe seleccionar un vial disponible para guardar el espécimen en almacenamiento líquido.'
+                );
+            }
+
+        } else {
+            throw new Exception('Debe seleccionar gabinete o caja.');
+        }
+
+        $resultado = $this->model->registrarEspecimen(
+            $codigo_id,
+            $localizacion,
+            $fecha_recoleccion,
+            $estado,
+            $id_especie,
+            $id_vial,
+            $id_gaveta,
+            $id_usuario_accion
+        );
+
+        $exito = false;
+        $mensajeError = 'No se pudo registrar el espécimen.';
+
+        if (is_array($resultado)) {
+            if (isset($resultado['Exito']) && (int) $resultado['Exito'] === 1) {
+                $exito = true;
+            }
+
+            if (isset($resultado['Resultado'])) {
+                $mensajeError = $resultado['Resultado'];
+            }
+        } else {
+            $exito = (bool) $resultado;
+        }
+
+        if (!$exito) {
+            throw new Exception($mensajeError);
+        }
+
+        header(
+            'Location: ?controlador=Especimen'
+            . '&accion=mostrarRegistrar'
+            . '&status=registrado_success'
+        );
+        exit;
+
+    } catch (Exception $e) {
+        die(
+            '<strong>ERROR FATAL AL GUARDAR:</strong> '
+            . $e->getMessage()
+        );
     }
+}
 
     public function buscarPorCodigo()
     {

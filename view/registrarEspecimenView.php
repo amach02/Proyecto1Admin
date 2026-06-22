@@ -1,8 +1,8 @@
 <?php 
 // Aseguramos que las variables existan para que no dé error en pantalla si vienen vacías
-$gavetas  = isset($gavetas) ? $gavetas : array();
-$viales   = isset($viales) ? $viales : array();
-$especies = isset($especies) ? $especies : array();
+$gabinetes = isset($gabinetes) ? $gabinetes : array();
+$cajas     = isset($cajas) ? $cajas : array();
+$especies  = isset($especies) ? $especies : array();
 
 include 'public/header.php'; 
 ?>

@@ -227,9 +227,12 @@ public function listarPorGabineteConRuta($id_gabinete)
             FROM tb_gaveta gv
             INNER JOIN tb_gabinete g
                 ON gv.id_gabinete = g.id_gabinete
+            LEFT JOIN tb_especimen e
+                ON e.id_gaveta = gv.id_gaveta
             WHERE gv.id_gabinete = ?
               AND gv.estado = 'activo'
               AND g.estado = 'activo'
+              AND e.id_gaveta IS NULL
             ORDER BY gv.codigo";
 
     $consulta = $this->db->prepare($sql);
